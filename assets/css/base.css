@@ -1,0 +1,226 @@
+/**
+ * DF Editor base styles.
+ * Rules: only theme tokens (var(--wp--preset--*), var(--wp--custom--*)) with fallbacks;
+ * sections use the --df-* variables set here, never raw colours.
+ */
+
+/* ---------- Layout tokens ---------- */
+:root {
+	--df-container: var(--wp--custom--container, 1200px);
+	--df-container-wide: calc(var(--df-container) + 16rem);
+	--df-gutter: var(--wp--preset--spacing--40, clamp(1rem, 4vw, 2rem));
+	--df-gap: var(--wp--preset--spacing--50, 2rem);
+	--df-radius: var(--wp--custom--radius, 8px);
+	--df-btn-radius: var(--wp--custom--button-radius, var(--df-radius));
+	--df-shadow: var(--wp--custom--shadow, 0 10px 30px rgba(0, 0, 0, .12));
+	--df-font-heading: var(--wp--preset--font-family--heading, inherit);
+	--df-font-body: var(--wp--preset--font-family--body, inherit);
+}
+
+/* ---------- Section wrapper ---------- */
+.df-section {
+	--df-bg: var(--wp--preset--color--base, #fff);
+	--df-fg: var(--wp--preset--color--contrast, #111);
+	position: relative;
+	background: var(--df-bg);
+	color: var(--df-fg);
+	font-family: var(--df-font-body);
+}
+.df-section *,
+.df-section *::before,
+.df-section *::after { box-sizing: border-box; }
+
+.df-section__inner {
+	width: 100%;
+	max-width: calc(var(--df-container) + 2 * var(--df-gutter));
+	margin-inline: auto;
+	padding-inline: var(--df-gutter);
+}
+.df-w-breit > .df-section__inner { max-width: calc(var(--df-container-wide) + 2 * var(--df-gutter)); }
+.df-w-voll > .df-section__inner { max-width: none; }
+
+.df-anchor { position: absolute; top: 0; scroll-margin-top: var(--df-scroll-offset, 6rem); }
+.df-section { scroll-margin-top: var(--df-scroll-offset, 6rem); }
+
+/* ---------- Spacing ---------- */
+.df-pt-0  { padding-top: 0; }
+.df-pt-s  { padding-top: var(--wp--preset--spacing--40, 1.5rem); }
+.df-pt-m  { padding-top: var(--wp--preset--spacing--60, 3rem); }
+.df-pt-l  { padding-top: var(--wp--preset--spacing--70, 5rem); }
+.df-pt-xl { padding-top: var(--wp--preset--spacing--80, 7rem); }
+.df-pb-0  { padding-bottom: 0; }
+.df-pb-s  { padding-bottom: var(--wp--preset--spacing--40, 1.5rem); }
+.df-pb-m  { padding-bottom: var(--wp--preset--spacing--60, 3rem); }
+.df-pb-l  { padding-bottom: var(--wp--preset--spacing--70, 5rem); }
+.df-pb-xl { padding-bottom: var(--wp--preset--spacing--80, 7rem); }
+
+/* ---------- Farbschema (colour schemes) ---------- */
+.df-scheme-hell,
+.df-scheme-hell-alt {
+	--df-fg: var(--wp--preset--color--contrast, #111);
+	--df-muted: var(--wp--preset--color--muted, #5b6270);
+	--df-border: var(--wp--preset--color--border, #dcdfe4);
+	--df-accent: var(--wp--preset--color--primary, #0b5cad);
+	--df-btn-bg: var(--wp--preset--color--primary, #0b5cad);
+	--df-btn-fg: var(--wp--preset--color--on-primary, #fff);
+	--df-btn2-fg: var(--wp--preset--color--contrast, #111);
+	--df-surface: var(--wp--preset--color--base-alt, #f3f4f6);
+}
+.df-scheme-hell     { --df-bg: var(--wp--preset--color--base, #fff); }
+.df-scheme-hell-alt { --df-bg: var(--wp--preset--color--base-alt, #f3f4f6); --df-surface: var(--wp--preset--color--base, #fff); }
+
+.df-scheme-dunkel {
+	--df-bg: var(--wp--preset--color--contrast, #111);
+	--df-fg: var(--wp--preset--color--base, #fff);
+	--df-muted: color-mix(in srgb, var(--df-fg) 72%, transparent);
+	--df-border: color-mix(in srgb, var(--df-fg) 22%, transparent);
+	--df-accent: var(--wp--preset--color--accent, #f2a900);
+	--df-btn-bg: var(--wp--preset--color--accent, #f2a900);
+	--df-btn-fg: var(--wp--preset--color--on-accent, #111);
+	--df-btn2-fg: var(--wp--preset--color--base, #fff);
+	--df-surface: color-mix(in srgb, var(--df-fg) 8%, var(--df-bg));
+}
+.df-scheme-primaer {
+	--df-bg: var(--wp--preset--color--primary, #0b5cad);
+	--df-fg: var(--wp--preset--color--on-primary, #fff);
+	--df-muted: color-mix(in srgb, var(--df-fg) 80%, transparent);
+	--df-border: color-mix(in srgb, var(--df-fg) 25%, transparent);
+	--df-accent: var(--wp--preset--color--on-primary, #fff);
+	--df-btn-bg: var(--wp--preset--color--on-primary, #fff);
+	--df-btn-fg: var(--wp--preset--color--primary, #0b5cad);
+	--df-btn2-fg: var(--wp--preset--color--on-primary, #fff);
+	--df-surface: color-mix(in srgb, var(--df-fg) 10%, var(--df-bg));
+}
+.df-scheme-akzent {
+	--df-bg: var(--wp--preset--color--accent, #f2a900);
+	--df-fg: var(--wp--preset--color--on-accent, #111);
+	--df-muted: color-mix(in srgb, var(--df-fg) 78%, transparent);
+	--df-border: color-mix(in srgb, var(--df-fg) 25%, transparent);
+	--df-accent: var(--wp--preset--color--on-accent, #111);
+	--df-btn-bg: var(--wp--preset--color--contrast, #111);
+	--df-btn-fg: var(--wp--preset--color--base, #fff);
+	--df-btn2-fg: var(--wp--preset--color--on-accent, #111);
+	--df-surface: color-mix(in srgb, var(--df-fg) 8%, var(--df-bg));
+}
+
+/* ---------- Typography helpers ---------- */
+.df-section :is(h1, h2, h3, h4) { font-family: var(--df-font-heading); color: inherit; line-height: 1.15; margin: 0 0 .5em; text-wrap: balance; }
+.df-eyebrow {
+	display: block;
+	margin: 0 0 .75rem;
+	font-size: var(--wp--preset--font-size--small, .875rem);
+	font-weight: 600;
+	letter-spacing: .08em;
+	text-transform: uppercase;
+	color: var(--df-accent);
+}
+.df-title    { font-size: var(--wp--preset--font-size--xx-large, clamp(1.75rem, 3vw + 1rem, 2.75rem)); }
+.df-display  { font-size: var(--wp--preset--font-size--display, clamp(2.25rem, 4vw + 1rem, 4rem)); }
+.df-lead     { font-size: var(--wp--preset--font-size--large, 1.25rem); }
+.df-muted    { color: var(--df-muted); }
+:is(.df-richtext, .df-inhalt-richtext) > :first-child { margin-top: 0; }
+:is(.df-richtext, .df-inhalt-richtext) > :last-child { margin-bottom: 0; }
+:is(.df-richtext, .df-inhalt-richtext) a { color: inherit; text-decoration: underline; text-underline-offset: .15em; }
+:is(.df-richtext, .df-inhalt-richtext) :is(ul, ol) { padding-left: 1.25em; }
+.df-measure  { max-width: 65ch; }
+.df-center   { text-align: center; margin-inline: auto; }
+
+/* ---------- Buttons ---------- */
+.df-actions { display: flex; flex-wrap: wrap; gap: var(--wp--preset--spacing--30, .75rem); margin-top: var(--wp--preset--spacing--50, 2rem); align-items: center; }
+.df-btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: .5em;
+	min-height: 2.75rem;
+	padding: .75em 1.5em;
+	border: 2px solid var(--df-btn-bg, currentColor);
+	border-radius: var(--df-btn-radius);
+	background: var(--df-btn-bg, #111);
+	color: var(--df-btn-fg, #fff);
+	font: inherit;
+	font-weight: 600;
+	line-height: 1.2;
+	text-decoration: none;
+	cursor: pointer;
+	transition: filter .15s ease, background-color .15s ease, color .15s ease;
+}
+.df-btn:hover { filter: brightness(1.08); }
+.df-btn--secondary { background: transparent; color: var(--df-btn2-fg, currentColor); border-color: currentColor; }
+.df-btn--secondary:hover { background: color-mix(in srgb, currentColor 10%, transparent); filter: none; }
+.df-btn--link { background: none; border-color: transparent; color: var(--df-accent); padding-inline: 0; text-decoration: underline; }
+/* DF Design "Button style: Outline" (body class from the Customizer). */
+.df-btn-style-outline .df-btn:not(.df-btn--secondary, .df-btn--link) { background: transparent; color: var(--df-btn2-fg, currentColor); border-color: var(--df-btn-bg, currentColor); }
+.df-btn-style-outline .df-btn:not(.df-btn--secondary, .df-btn--link):hover { background: var(--df-btn-bg, #111); color: var(--df-btn-fg, #fff); filter: none; }
+
+/* ---------- Image frame (fixed aspect ratio) ---------- */
+.df-frame {
+	position: relative;
+	aspect-ratio: var(--df-ratio, 4 / 3);
+	overflow: hidden;
+	background: var(--df-surface, rgba(0, 0, 0, .05));
+}
+.df-frame img,
+.df-frame picture {
+	display: block;
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+}
+.df-frame--rounded { border-radius: var(--df-radius); }
+.df-frame--shadow  { border-radius: var(--df-radius); box-shadow: var(--df-shadow); }
+/* Per-site placeholder image (no image chosen yet): decorative, alt="". Editors see a dashed hint. */
+html.df-edit-active .df-img--placeholder { outline: 2px dashed var(--df-border, currentColor); outline-offset: -4px; }
+
+/* ---------- Accessibility ---------- */
+.df-section :is(a, button, summary, [tabindex]):focus-visible {
+	outline: 3px solid var(--df-accent, currentColor);
+	outline-offset: 3px;
+}
+.df-sr-only {
+	position: absolute !important;
+	width: 1px; height: 1px;
+	padding: 0; margin: -1px;
+	overflow: hidden; clip: rect(0 0 0 0);
+	white-space: nowrap; border: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.df-section *,
+	.df-section *::before,
+	.df-section *::after {
+		animation-duration: .01ms !important;
+		animation-iteration-count: 1 !important;
+		transition-duration: .01ms !important;
+		scroll-behavior: auto !important;
+	}
+}
+
+/* ---------- Missing section notice (editors only) ---------- */
+.df-missing {
+	background: color-mix(in srgb, var(--wp--preset--color--accent, #c9a400) 18%, var(--wp--preset--color--base, #fff));
+	color: var(--wp--preset--color--contrast, #1a1a1a);
+	border: 2px dashed var(--wp--preset--color--accent, #c9a400);
+	padding: 1rem;
+	margin: 1rem;
+	font: 14px/1.4 sans-serif;
+}
+
+/* ---------- Edit state (DF Inhalt active) ----------
+ * Everything that is normally hidden must be reachable for editing:
+ * details open, slides as grid, all tab panels visible. */
+html.df-edit-active .df-section details > :not(summary) { display: block; }
+html.df-edit-active .df-section details::details-content { content-visibility: visible; display: contents; }
+html.df-edit-active .df-section [data-df-slides] {
+	display: grid !important;
+	grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+	overflow: visible !important;
+	transform: none !important;
+	scroll-snap-type: none !important;
+}
+html.df-edit-active .df-section [role="tabpanel"],
+html.df-edit-active .df-section [data-df-tabpanel] { display: block !important; }
+html.df-edit-active .df-section [role="tabpanel"][hidden],
+html.df-edit-active .df-section [data-df-tabpanel][hidden] { display: block !important; }
+html.df-edit-active .df-section [data-df-hidden-for-visitors] { display: revert !important; opacity: .6; }
+html.df-edit-active .df-section [data-df-field]:empty { display: inline-block; min-width: 4ch; min-height: 1em; }

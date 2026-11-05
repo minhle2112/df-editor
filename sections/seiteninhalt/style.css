@@ -1,0 +1,61 @@
+/* Section: Seiteninhalt — readable prose for WordPress content, --df-* variables only. */
+.df-seiteninhalt--narrow .df-seiteninhalt__prose { max-width: 70ch; }
+.df-seiteninhalt--wide .df-seiteninhalt__prose { max-width: none; }
+.df-seiteninhalt--narrow .df-seiteninhalt__region { max-width: 70ch; }
+
+.df-seiteninhalt__prose {
+	font-size: var(--wp--preset--font-size--medium, 1.0625rem);
+	line-height: 1.7;
+	overflow-wrap: break-word;
+}
+.df-seiteninhalt__prose > :first-child { margin-top: 0; }
+.df-seiteninhalt__prose > :last-child { margin-bottom: 0; }
+.df-seiteninhalt__prose :is(p, ul, ol, dl, blockquote, figure, table, pre, address) { margin: 0 0 1.1em; }
+
+.df-seiteninhalt__prose h1 { font-size: var(--wp--preset--font-size--xx-large, 2.25rem); margin: 0 0 .6em; }
+.df-seiteninhalt__prose h2 { font-size: var(--wp--preset--font-size--x-large, 1.75rem); margin: 1.8em 0 .55em; }
+.df-seiteninhalt__prose h3 { font-size: var(--wp--preset--font-size--large, 1.35rem); margin: 1.5em 0 .5em; }
+.df-seiteninhalt__prose :is(h4, h5, h6) { font-family: var(--df-font-heading); font-size: var(--wp--preset--font-size--medium, 1.1rem); line-height: 1.3; margin: 1.3em 0 .4em; }
+
+.df-seiteninhalt__prose a { color: var(--df-accent); text-decoration: underline; text-underline-offset: .15em; }
+.df-seiteninhalt__prose a:hover { text-decoration-thickness: 2px; }
+.df-seiteninhalt__prose :is(ul, ol) { padding-left: 1.4em; }
+.df-seiteninhalt__prose li { margin: .3em 0; }
+.df-seiteninhalt__prose li > :is(ul, ol) { margin: .3em 0 0; }
+.df-seiteninhalt__prose strong { font-weight: 700; }
+
+.df-seiteninhalt__prose blockquote {
+	padding: .25em 0 .25em 1.25em;
+	border-left: 4px solid var(--df-accent);
+	color: var(--df-muted);
+	font-style: italic;
+}
+.df-seiteninhalt__prose hr { margin: 2em 0; border: 0; border-top: 1px solid var(--df-border); }
+.df-seiteninhalt__prose :is(img, video, iframe) { max-width: 100%; height: auto; }
+.df-seiteninhalt__prose figure { max-width: 100%; }
+.df-seiteninhalt__prose figcaption { margin-top: .4em; color: var(--df-muted); font-size: var(--wp--preset--font-size--small, .875rem); }
+.df-seiteninhalt__prose :is(code, kbd) { padding: .1em .3em; border-radius: 4px; background: var(--df-surface); font-size: .9em; }
+.df-seiteninhalt__prose pre { padding: 1em; overflow-x: auto; border-radius: var(--df-radius); background: var(--df-surface); }
+.df-seiteninhalt__prose pre code { padding: 0; background: none; }
+
+/* Tables: scroll horizontally on small screens instead of breaking the layout. */
+.df-seiteninhalt__prose .wp-block-table { overflow-x: auto; }
+.df-seiteninhalt__prose table {
+	width: 100%;
+	border-collapse: collapse;
+	font-size: .95em;
+}
+.df-seiteninhalt__prose :is(th, td) {
+	padding: .6em .8em;
+	border: 1px solid var(--df-border);
+	text-align: left;
+	vertical-align: top;
+}
+.df-seiteninhalt__prose thead th { background: var(--df-surface); font-weight: 600; }
+.df-seiteninhalt__prose caption { caption-side: bottom; padding-top: .5em; color: var(--df-muted); font-size: var(--wp--preset--font-size--small, .875rem); }
+
+/* Core alignment classes inside the prose container. */
+.df-seiteninhalt__prose .aligncenter { margin-inline: auto; text-align: center; }
+.df-seiteninhalt__prose .alignleft { float: left; margin: .3em 1.5em 1em 0; }
+.df-seiteninhalt__prose .alignright { float: right; margin: .3em 0 1em 1.5em; }
+.df-seiteninhalt__prose::after { content: ""; display: table; clear: both; }

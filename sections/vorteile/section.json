@@ -1,0 +1,24 @@
+{
+	"type": "vorteile",
+	"version": 1,
+	"label": "Vorteile (USP-Leiste)",
+	"description": "Short strip of three to six benefits, each with a title and one line of text.",
+	"variants": {
+		"row": "Leiste (eine Zeile)",
+		"grid": "Raster"
+	},
+	"options": {
+		"divider": { "label": "Trennlinien", "values": ["yes", "no"], "default": "no", "labels": { "yes": "Show dividers", "no": "No dividers" } }
+	},
+	"list": {
+		"key": "items",
+		"min": 3,
+		"max": 6,
+		"default_count": 4,
+		"fields": {
+			"title": { "type": "text", "label": "Titel", "default": "Vorteil {n}", "max_length": 40 },
+			"text": { "type": "text", "label": "Text", "default": "Kurze Erklärung in einem Satz.", "max_length": 100 },
+			"icon": { "type": "setting", "label": "Icon (nur Agentur, Layout-JSON)", "values": ["check", "phone", "mail", "clock", "map-pin", "star", "shield", "wrench", "flame", "droplet", "home", "leaf", "bolt", "users", "calendar", "arrow-right", "none"], "default": "" }
+		}
+	}
+}

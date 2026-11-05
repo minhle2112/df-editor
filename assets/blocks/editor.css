@@ -1,0 +1,304 @@
+/**
+ * DF Editor – block editor styles.
+ *
+ * Canvas part (.df-block, .df-block-label, .df-block-preview__*, .df-block-placeholder,
+ * .df-block-notice, .df-block-example) must load inside the editor iframe
+ * (enqueue_block_assets, is_admin()). Sidebar part (.df-block-scheme*, .df-block-row,
+ * .df-block-help, .df-block-readonly, .df-block-texts, .df-block-inhalt-link) must load in the admin
+ * document (enqueue_block_editor_assets). Loading the whole file in both places is safe.
+ */
+
+/* ---------- shared ---------- */
+.df-block-sr {
+	position: absolute !important;
+	width: 1px;
+	height: 1px;
+	padding: 0;
+	margin: -1px;
+	overflow: hidden;
+	clip: rect(0, 0, 0, 0);
+	white-space: nowrap;
+	border: 0;
+}
+
+/* ---------- canvas ---------- */
+.df-block {
+	position: relative;
+	/* Sections bring their own container; let them use the full canvas width. */
+	max-width: none !important;
+	margin-top: 0 !important;
+	margin-bottom: 0 !important;
+	cursor: default;
+}
+
+.df-block.is-df-selected,
+.df-block:focus-visible {
+	outline: 2px solid var(--wp-admin-theme-color, #3858e9);
+	outline-offset: -2px;
+}
+
+.df-block-label {
+	display: none;
+	position: absolute;
+	top: 0;
+	left: 0;
+	z-index: 20;
+	align-items: center;
+	gap: 0.25em;
+	padding: 3px 8px;
+	font: 500 12px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+	color: #fff;
+	background: var(--wp-admin-theme-color, #3858e9);
+	border-bottom-right-radius: 2px;
+	pointer-events: none;
+	white-space: nowrap;
+	max-width: 100%;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.df-block.is-df-selected > .df-block-label,
+.df-block:hover > .df-block-label {
+	display: inline-flex;
+}
+
+.df-block:hover:not(.is-df-selected) > .df-block-label {
+	background: #1e1e1e;
+}
+
+/* Hint below the label of the selected block: texts are edited on the page. */
+.df-block-hint {
+	position: absolute;
+	top: 24px;
+	left: 0;
+	z-index: 20;
+	padding: 2px 8px;
+	font: 12px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+	color: #1e1e1e;
+	background: #fff;
+	border: 1px solid var(--wp-admin-theme-color, #3858e9);
+	border-top: 0;
+	border-bottom-right-radius: 2px;
+	pointer-events: none;
+	white-space: nowrap;
+}
+
+.df-block-label__brand {
+	font-weight: 700;
+	letter-spacing: 0.04em;
+}
+
+.df-block-label__flag {
+	margin-left: 0.5em;
+	padding: 0 6px;
+	border: 1px solid currentColor;
+	border-radius: 2px;
+	font-size: 11px;
+	text-transform: uppercase;
+}
+
+.df-block-preview__content {
+	pointer-events: none;
+	user-select: none;
+}
+
+.df-block-preview__loading {
+	position: relative;
+	min-height: 120px;
+}
+
+.df-block-preview__previous {
+	opacity: 0.5;
+	pointer-events: none;
+	transition: opacity 0.2s;
+}
+
+.df-block-preview__spinner {
+	position: absolute;
+	inset: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.df-block-preview__spinner .components-spinner {
+	margin: 0;
+}
+
+.df-block-placeholder {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	padding: 24px;
+	min-height: 96px;
+	font: 14px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+	color: #1e1e1e;
+	background: #f6f7f7;
+	border: 1px dashed #8c8f94;
+	box-sizing: border-box;
+}
+
+.df-block-placeholder__icon svg {
+	display: block;
+	width: 28px;
+	height: 28px;
+	fill: currentColor;
+}
+
+.df-block-placeholder__text {
+	display: flex;
+	flex-direction: column;
+}
+
+.df-block-placeholder.is-muted {
+	color: #50575e;
+	background: repeating-linear-gradient(-45deg, #f6f7f7, #f6f7f7 10px, #eceeef 10px, #eceeef 20px);
+}
+
+.df-block-notice {
+	padding: 16px 20px;
+	font: 14px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+	color: #1e1e1e;
+	background: #fff;
+	border-left: 4px solid #8c8f94;
+}
+
+.df-block-notice.is-error {
+	border-left-color: #cc1818;
+	background: #fcf0f1;
+}
+
+.df-block-example {
+	display: block;
+	width: 100%;
+	height: auto;
+}
+
+/* ---------- sidebar ---------- */
+.df-block-control-label {
+	display: block;
+	margin-bottom: 8px;
+	font-size: 11px;
+	font-weight: 500;
+	line-height: 1.4;
+	text-transform: uppercase;
+}
+
+.df-block-scheme {
+	margin-bottom: 16px;
+}
+
+.df-block-scheme__list {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 6px;
+}
+
+.components-button.df-block-scheme__btn {
+	position: relative;
+	display: flex;
+	justify-content: flex-start;
+	gap: 8px;
+	height: auto;
+	min-height: 36px;
+	padding: 4px 8px 4px 4px;
+	text-align: left;
+	white-space: normal;
+	border: 1px solid #949494;
+	border-radius: 2px;
+	box-shadow: none;
+	color: #1e1e1e;
+	background: #fff;
+}
+
+.components-button.df-block-scheme__btn.is-pressed,
+.components-button.df-block-scheme__btn.is-active {
+	color: #1e1e1e;
+	background: #fff;
+	border-color: var(--wp-admin-theme-color, #3858e9);
+	box-shadow: inset 0 0 0 1px var(--wp-admin-theme-color, #3858e9);
+}
+
+.components-button.df-block-scheme__btn:focus-visible {
+	box-shadow: 0 0 0 2px var(--wp-admin-theme-color, #3858e9);
+}
+
+.df-block-scheme__swatch {
+	flex: 0 0 auto;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 26px;
+	height: 26px;
+	font-size: 11px;
+	font-weight: 600;
+	border: 1px solid rgba(0, 0, 0, 0.2);
+	border-radius: 2px;
+}
+
+.df-block-scheme__label {
+	flex: 1 1 auto;
+	font-size: 12px;
+	line-height: 1.3;
+}
+
+.df-block-scheme__check {
+	font-weight: 700;
+	color: var(--wp-admin-theme-color, #3858e9);
+}
+
+.df-block-row {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 8px;
+	margin-bottom: 16px;
+}
+
+.df-block-row .components-base-control {
+	min-width: 0;
+}
+
+/* Core inspector rules add a top margin to the second control of the row; keep both aligned. */
+.df-block-row > *,
+.df-block-row > * > .components-base-control {
+	margin: 0 !important;
+	align-self: start;
+}
+
+.df-block-help {
+	margin: 8px 0 0;
+	font-size: 12px;
+	color: #757575;
+}
+
+.df-block-readonly input[readonly] {
+	font-family: Menlo, Consolas, monospace;
+	color: #50575e;
+	background: #f6f7f7;
+}
+
+.df-block-texts {
+	margin: 0 0 16px;
+	padding-bottom: 16px;
+	border-bottom: 1px solid #e0e0e0;
+}
+
+.df-block-texts .df-block-help {
+	margin: 0;
+	color: #1e1e1e;
+}
+
+.components-button.df-block-inhalt-link {
+	margin-top: 8px;
+}
+
+.components-panel__body .components-base-control + .components-base-control,
+.components-panel__body .df-block-scheme + .components-base-control {
+	margin-top: 16px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.df-block-preview__previous {
+		transition: none;
+	}
+}

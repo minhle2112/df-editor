@@ -1,0 +1,93 @@
+/* Section: Kundenstimmen — colours only via --df-* variables. */
+.df-kundenstimmen__head { max-width: 48rem; margin-bottom: var(--wp--preset--spacing--50, 2rem); }
+
+.df-kundenstimmen__track {
+	display: grid;
+	grid-template-columns: 1fr;
+	gap: var(--df-gap);
+}
+@media (min-width: 700px) {
+	.df-kundenstimmen--grid .df-kundenstimmen__track { grid-template-columns: repeat(2, 1fr); }
+}
+@media (min-width: 1000px) {
+	.df-kundenstimmen--grid .df-kundenstimmen__track { grid-template-columns: repeat(3, 1fr); }
+}
+
+.df-kundenstimmen__item { display: flex; min-width: 0; }
+.df-kundenstimmen__card {
+	display: flex;
+	flex: 1;
+	flex-direction: column;
+	gap: var(--wp--preset--spacing--40, 1rem);
+	margin: 0;
+	padding: var(--wp--preset--spacing--50, 1.75rem);
+	border-radius: var(--df-radius);
+	background: var(--df-surface);
+	color: var(--df-fg);
+}
+
+.df-kundenstimmen__stars { display: flex; gap: .15rem; margin: 0; color: var(--df-accent); }
+.df-kundenstimmen__star { width: 1.15rem; height: 1.15rem; }
+.df-kundenstimmen__star--on { fill: currentColor; }
+.df-kundenstimmen__star:not(.df-kundenstimmen__star--on) { opacity: .45; }
+
+.df-kundenstimmen__quote { flex: 1; margin: 0; padding: 0; border: 0; font-size: var(--wp--preset--font-size--medium, 1rem); line-height: 1.6; }
+.df-kundenstimmen__quote p { margin: 0 0 .75em; }
+.df-kundenstimmen__quote-text > :last-child { margin-bottom: 0; }
+
+.df-kundenstimmen__author { display: flex; align-items: center; gap: var(--wp--preset--spacing--30, .75rem); }
+.df-kundenstimmen__photo { display: block; flex: none; width: 3.25rem; border-radius: 50%; }
+.df-kundenstimmen__meta { display: flex; flex-direction: column; min-width: 0; line-height: 1.3; }
+.df-kundenstimmen__name { font-weight: 700; }
+.df-kundenstimmen__company { color: var(--df-muted); font-size: var(--wp--preset--font-size--small, .875rem); }
+
+/* Variant: single — one large quote, centred */
+.df-kundenstimmen--single .df-kundenstimmen__head { margin-inline: auto; text-align: center; }
+.df-kundenstimmen--single .df-kundenstimmen__track { max-width: 52rem; margin-inline: auto; }
+.df-kundenstimmen--single .df-kundenstimmen__card { align-items: center; padding: var(--wp--preset--spacing--60, 2.5rem); text-align: center; }
+.df-kundenstimmen--single .df-kundenstimmen__quote { font-family: var(--df-font-heading); font-size: var(--wp--preset--font-size--large, 1.25rem); }
+.df-kundenstimmen--single .df-kundenstimmen__author { flex-direction: column; }
+.df-kundenstimmen--single .df-kundenstimmen__photo { width: 4.5rem; }
+
+/* Variant: slider — CSS scroll-snap, prev/next buttons from view.js */
+.df-kundenstimmen--slider .df-kundenstimmen__track {
+	grid-auto-flow: column;
+	grid-template-columns: none;
+	grid-auto-columns: 85%;
+	overflow-x: auto;
+	overscroll-behavior-x: contain;
+	scroll-snap-type: x mandatory;
+	scroll-behavior: smooth;
+	scrollbar-width: thin;
+	padding-bottom: var(--wp--preset--spacing--20, .5rem);
+}
+@media (min-width: 700px) {
+	.df-kundenstimmen--slider .df-kundenstimmen__track { grid-auto-columns: calc((100% - var(--df-gap)) / 2); }
+}
+@media (min-width: 1000px) {
+	.df-kundenstimmen--slider .df-kundenstimmen__track { grid-auto-columns: calc((100% - 2 * var(--df-gap)) / 3); }
+}
+.df-kundenstimmen--slider .df-kundenstimmen__item { scroll-snap-align: start; }
+
+.df-kundenstimmen__controls { display: flex; justify-content: flex-end; gap: var(--wp--preset--spacing--20, .5rem); margin-top: var(--wp--preset--spacing--40, 1rem); }
+.df-kundenstimmen__controls[hidden] { display: none; }
+.df-kundenstimmen__nav {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 2.75rem;
+	height: 2.75rem;
+	padding: 0;
+	border: 2px solid currentColor;
+	border-radius: 50%;
+	background: transparent;
+	color: var(--df-fg);
+	cursor: pointer;
+}
+.df-kundenstimmen__nav:hover { background: color-mix(in srgb, currentColor 10%, transparent); }
+.df-kundenstimmen__nav:disabled { opacity: .35; cursor: default; }
+.df-kundenstimmen__nav .df-icon { width: 1.25rem; height: 1.25rem; }
+
+/* Edit state: the slider becomes a grid (base.css, [data-df-slides]); no buttons, no snapping. */
+html.df-edit-active .df-kundenstimmen__controls { display: none; }
+html.df-edit-active .df-kundenstimmen--slider .df-kundenstimmen__track { grid-auto-flow: row; grid-auto-columns: auto; }

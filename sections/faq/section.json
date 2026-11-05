@@ -1,0 +1,31 @@
+{
+	"type": "faq",
+	"version": 1,
+	"label": "FAQ / Akkordeon",
+	"description": "Questions and answers as an accessible accordion in one or two columns.",
+	"variants": {
+		"one-col": "Eine Spalte",
+		"two-col": "Zwei Spalten"
+	},
+	"options": {
+		"open_first": { "label": "Erste Frage geöffnet", "values": ["yes", "no"], "default": "no", "labels": { "yes": "First question open", "no": "All questions closed" } },
+		"single_open": { "label": "Nur eine Frage gleichzeitig offen", "values": ["yes", "no"], "default": "no", "labels": { "yes": "One question open at a time", "no": "Several questions can be open" } },
+		"schema": { "label": "FAQPage-Schema ausgeben", "values": ["yes", "no"], "default": "no", "labels": { "yes": "Output FAQPage schema", "no": "No schema" } },
+		"heading_level": { "label": "Überschrift-Ebene", "values": ["h2", "h3"], "default": "h2", "labels": { "h2": "Heading 2 (H2)", "h3": "Heading 3 (H3)" } }
+	},
+	"fields": {
+		"eyebrow": { "type": "text", "label": "Dachzeile", "default": "FAQ", "max_length": 60 },
+		"title": { "type": "text", "label": "Überschrift", "default": "Häufige Fragen", "max_length": 100 },
+		"intro": { "type": "richtext", "label": "Einleitung", "default": "", "max_length": 600 }
+	},
+	"list": {
+		"key": "items",
+		"min": 1,
+		"max": 12,
+		"default_count": 5,
+		"fields": {
+			"question": { "type": "text", "label": "Frage", "default": "Frage {n}?", "max_length": 160 },
+			"answer": { "type": "richtext", "label": "Antwort", "default": "<p>Antwort auf Frage {n}.</p>", "max_length": 1500 }
+		}
+	}
+}

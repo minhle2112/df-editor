@@ -1,0 +1,16 @@
+/* Section: Text & Bild — colours only via --df-* variables. */
+.df-text-bild__grid {
+	display: grid;
+	gap: var(--df-gap);
+	align-items: center;
+}
+.df-text-bild__body { max-width: 65ch; }
+.df-text-bild__body li + li { margin-top: .35em; }
+
+@media (min-width: 900px) {
+	.df-text-bild__grid { gap: var(--wp--preset--spacing--60, 3rem); }
+	.df-text-bild--r-50-50 { grid-template-columns: 1fr 1fr; }
+	.df-text-bild--image-left .df-text-bild--r-40-60 { grid-template-columns: 2fr 3fr; }
+	.df-text-bild--image-right .df-text-bild--r-40-60 { grid-template-columns: 3fr 2fr; }
+	.df-text-bild--image-right .df-text-bild__media { order: 2; }
+}

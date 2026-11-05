@@ -1,0 +1,37 @@
+{
+	"type": "team",
+	"version": 1,
+	"label": "Team",
+	"description": "Team members with photo, role and contact links in two to four columns.",
+	"variants": {
+		"grid": "Raster"
+	},
+	"options": {
+		"source": { "label": "Quelle", "values": ["cpt", "manual"], "default": "cpt", "labels": { "cpt": "Team entries", "manual": "Entered on this page" } },
+		"columns": { "label": "Spalten", "values": ["2", "3", "4"], "default": "3", "labels": { "2": "2 columns", "3": "3 columns", "4": "4 columns" } },
+		"photo": { "label": "Fotoform", "values": ["round", "rect"], "default": "round", "labels": { "round": "Round photos", "rect": "Rectangular photos" } },
+		"ratio": { "label": "Fotoformat (eckig)", "values": ["1-1", "4-5"], "default": "1-1", "labels": { "1-1": "Square (1:1)", "4-5": "Portrait (4:5)" } },
+		"cpt_max": { "label": "Max. Personen (Team-Einträge)", "values": ["all", "2", "3", "4", "6", "8", "9", "12", "16", "24"], "default": "all", "labels": { "all": "All people", "2": "2 people", "3": "3 people", "4": "4 people", "6": "6 people", "8": "8 people", "9": "9 people", "12": "12 people", "16": "16 people", "24": "24 people" } },
+		"contact": { "label": "Kontaktlinks anzeigen", "values": ["yes", "no"], "default": "yes", "labels": { "yes": "Show contact links", "no": "Hide contact links" } },
+		"bio": { "label": "Kurzbiografie anzeigen (Team-Einträge)", "values": ["yes", "no"], "default": "no", "labels": { "yes": "Show short bio", "no": "Hide short bio" } },
+		"heading_level": { "label": "Überschrift-Ebene", "values": ["h2", "h3"], "default": "h2", "labels": { "h2": "Heading 2 (H2)", "h3": "Heading 3 (H3)" } }
+	},
+	"fields": {
+		"eyebrow": { "type": "text", "label": "Dachzeile", "default": "Team", "max_length": 60 },
+		"title": { "type": "text", "label": "Überschrift", "default": "Unser Team", "max_length": 100 },
+		"intro": { "type": "richtext", "label": "Einleitung", "default": "", "max_length": 600 }
+	},
+	"list": {
+		"key": "items",
+		"min": 1,
+		"max": 12,
+		"default_count": 3,
+		"fields": {
+			"name": { "type": "text", "label": "Name", "default": "Vorname Nachname", "max_length": 80 },
+			"role": { "type": "text", "label": "Position", "default": "Position {n}", "max_length": 80 },
+			"image": { "type": "image", "label": "Foto", "aspect_ratio": "1/1" },
+			"email": { "type": "button", "label": "E-Mail", "default": { "text": "E-Mail", "url": "mailto:info@beispiel.de" }, "max_length": 80 },
+			"phone": { "type": "button", "label": "Telefon", "default": { "text": "", "url": "" }, "max_length": 40 }
+		}
+	}
+}

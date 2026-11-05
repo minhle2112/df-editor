@@ -1,0 +1,25 @@
+{
+	"type": "cta",
+	"version": 1,
+	"label": "Call to Action",
+	"description": "Conversion block with a heading, short text and up to two buttons, optionally with a contact person.",
+	"variants": {
+		"centered": "Zentriert",
+		"split": "Text + Buttons nebeneinander",
+		"contact": "Kontakt mit Ansprechpartner"
+	},
+	"options": {
+		"buttons": { "label": "Anzahl Buttons", "values": ["0", "1", "2"], "default": "1", "labels": { "0": "No buttons", "1": "One button", "2": "Two buttons" } },
+		"phone_source": { "label": "Telefon (Variante Kontakt)", "values": ["global", "own"], "default": "global", "labels": { "global": "Site contact phone", "own": "Own phone number" } },
+		"heading_level": { "label": "Überschrift-Ebene", "values": ["h2", "h3"], "default": "h2", "labels": { "h2": "Heading 2 (H2)", "h3": "Heading 3 (H3)" } }
+	},
+	"fields": {
+		"eyebrow": { "type": "text", "label": "Dachzeile", "default": "Jetzt anfragen", "max_length": 60 },
+		"title": { "type": "text", "label": "Überschrift", "default": "Wir sind für Sie da", "max_length": 80 },
+		"text": { "type": "richtext", "label": "Text", "default": "<p>Rufen Sie uns an oder schreiben Sie uns – wir melden uns innerhalb von 24 Stunden.</p>", "max_length": 400 },
+		"cta1": { "type": "button", "label": "Button 1", "default": { "text": "Kontakt aufnehmen", "url": "/kontakt/" }, "max_length": 40 },
+		"cta2": { "type": "button", "label": "Button 2", "default": { "text": "Mehr erfahren", "url": "#" }, "max_length": 40 },
+		"image": { "type": "image", "label": "Foto Ansprechpartner", "aspect_ratio": "1/1" },
+		"phone": { "type": "button", "label": "Telefon", "default": { "text": "0221 123 456 0", "url": "tel:+492211234560" }, "max_length": 40 }
+	}
+}

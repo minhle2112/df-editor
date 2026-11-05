@@ -1,0 +1,13 @@
+/* Section: Textblock — colours only via --df-* variables. */
+.df-textblock__body { max-width: var(--wp--style--global--content-size, 760px); }
+.df-textblock--wide .df-textblock__body { max-width: none; }
+.df-textblock--align-center { margin-inline: auto; text-align: center; }
+.df-textblock--align-center :is(ul, ol) { display: inline-block; text-align: left; }
+
+.df-textblock__text { font-size: var(--wp--preset--font-size--medium, 1rem); line-height: 1.65; }
+.df-textblock__text :is(p, ul, ol) { margin: 0 0 1em; }
+.df-textblock__text li + li { margin-top: .35em; }
+.df-textblock__text :is(h2, h3) { margin: 1.5em 0 .5em; }
+.df-textblock__text h2 { font-size: var(--wp--preset--font-size--x-large, 1.75rem); }
+.df-textblock__text h3 { font-size: var(--wp--preset--font-size--large, 1.25rem); }
+

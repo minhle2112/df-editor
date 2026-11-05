@@ -1,0 +1,21 @@
+{
+	"type": "formular",
+	"version": 1,
+	"label": "Formular",
+	"description": "Heading, short text and a contact form, optionally next to the site contact details.",
+	"variants": {
+		"full": "Nur Formular",
+		"with-contact": "Formular + Kontaktdaten"
+	},
+	"options": {
+		"form_plugin": { "label": "Formular-Plugin", "values": ["auto", "cf7", "fluentforms"], "default": "auto", "labels": { "auto": "Detect automatically", "cf7": "Contact Form 7", "fluentforms": "Fluent Forms" } },
+		"form_id": { "label": "Formular-ID (leer = erstes Formular)", "values": [], "default": "" },
+		"heading_level": { "label": "Überschrift-Ebene", "values": ["h2", "h3"], "default": "h2", "labels": { "h2": "Heading 2 (H2)", "h3": "Heading 3 (H3)" } }
+	},
+	"fields": {
+		"eyebrow": { "type": "text", "label": "Dachzeile", "default": "Kontakt", "max_length": 60 },
+		"title": { "type": "text", "label": "Überschrift", "default": "Schreiben Sie uns", "max_length": 100 },
+		"text": { "type": "richtext", "label": "Text", "default": "<p>Wir melden uns in der Regel innerhalb eines Werktags bei Ihnen.</p>", "max_length": 600 },
+		"contact_title": { "type": "text", "label": "Überschrift Kontaktbox", "default": "So erreichen Sie uns", "max_length": 80 }
+	}
+}

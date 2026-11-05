@@ -1,0 +1,12 @@
+{
+	"type": "seiteninhalt",
+	"version": 1,
+	"label": "Seiteninhalt",
+	"description": "Shows the regular WordPress page content, e.g. for the legal notice or privacy policy.",
+	"variants": {
+		"narrow": "Schmal (Lesebreite)",
+		"wide": "Breit"
+	},
+	"options": {},
+	"fields": {}
+}
