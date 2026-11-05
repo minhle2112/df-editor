@@ -73,53 +73,12 @@ final class DF_Inhalt_Plugin {
 	}
 
 	/**
-	 * Whether the page is shown inside the DF Panel preview iframe (?df_panel_frame=1).
-	 *
-	 * @return bool
-	 */
-	public static function in_panel_frame() {
-		return self::query_flag( 'df_panel_frame', '1' );
-	}
-
-	/**
 	 * Whether edit mode was requested on load (?df_inhalt=open).
 	 *
 	 * @return bool
 	 */
 	public static function auto_open() {
 		return self::query_flag( 'df_inhalt', 'open' );
-	}
-
-	/**
-	 * DF Panel URL for the current front-end page, or '' when the current user
-	 * may not use the panel or the page has no DF layout.
-	 *
-	 * Never offered inside the panel iframe itself.
-	 *
-	 * @return string
-	 */
-	public static function layout_panel_url() {
-		if ( ! is_user_logged_in() || self::in_panel_frame() || ! is_singular() ) {
-			return '';
-		}
-		if ( ! current_user_can( 'df_edit_layout' ) && ! current_user_can( 'df_reorder_sections' ) ) {
-			return '';
-		}
-		$post_id = (int) get_queried_object_id();
-		if ( ! $post_id ) {
-			return '';
-		}
-		$layout = get_post_meta( $post_id, '_df_layout', true );
-		if ( empty( $layout ) || '[]' === $layout || '{}' === $layout ) {
-			return '';
-		}
-		return add_query_arg(
-			array(
-				'page' => 'df-panel',
-				'post' => $post_id,
-			),
-			admin_url( 'admin.php' )
-		);
 	}
 
 	/**
@@ -210,15 +169,6 @@ final class DF_Inhalt_Plugin {
 	 */
 	public static function enqueue_editor_assets() {
 		if ( ! self::can_edit() ) {
-			// Panel users without DF Inhalt rights still get the "Layout" button.
-			if ( '' !== self::layout_panel_url() ) {
-				wp_enqueue_style(
-					'df-inhalt-editor',
-					DF_INHALT_PLUGIN_URL . 'assets/css/editor.css',
-					array( 'dashicons' ),
-					self::asset_version( 'assets/css/editor.css' )
-				);
-			}
 			return;
 		}
 
@@ -248,7 +198,6 @@ final class DF_Inhalt_Plugin {
 				'pageId'  => get_queried_object_id(),
 				'commentsUrl' => esc_url_raw( rest_url( 'df/v1/comments' ) ),
 				'clientMode' => DF_Inhalt_Client::clean_admin(),
-				'panelFrame' => self::in_panel_frame(),
 				'autoOpen'   => self::auto_open(),
 				'labels'  => array(
 					'openEditor'  => __( 'Open DF Inhalt', 'df-editor' ),
@@ -275,24 +224,15 @@ final class DF_Inhalt_Plugin {
 	 * @return void
 	 */
 	public static function render_editor() {
-		$layout_url = self::layout_panel_url();
 		if ( ! self::can_edit() ) {
-			if ( '' !== $layout_url ) {
-				self::render_layout_link( $layout_url, true );
-			}
 			return;
 		}
 		?>
-		<div class="df-inhalt-ui df-inhalt-toolbar<?php echo '' !== $layout_url ? ' df-inhalt-toolbar--with-layout' : ''; ?>" data-df-toolbar hidden>
+		<div class="df-inhalt-ui df-inhalt-toolbar" data-df-toolbar hidden>
 			<button class="df-inhalt-toolbar__select" type="button" data-df-toggle aria-pressed="false">
 				<span data-df-toggle-label><?php esc_html_e( 'Open DF Inhalt', 'df-editor' ); ?></span>
 				<span class="dashicons dashicons-edit" aria-hidden="true"></span>
 			</button>
-			<?php
-			if ( '' !== $layout_url ) {
-				self::render_layout_link( $layout_url, false );
-			}
-			?>
 		</div>
 		<?php if ( DF_Inhalt_Client::clean_admin() ) : ?>
 			<a class="df-inhalt-ui df-inhalt-client-logout" href="<?php echo esc_url( wp_logout_url( DF_Inhalt_Client::logged_out_url() ) ); ?>"><?php esc_html_e( 'Log out', 'df-editor' ); ?></a>
@@ -394,31 +334,6 @@ final class DF_Inhalt_Plugin {
 			</form>
 		</div>
 		<?php
-	}
-
-	/**
-	 * Print the "Layout" link that opens the DF Panel for the current page.
-	 *
-	 * @param string $url        DF Panel URL (from layout_panel_url()).
-	 * @param bool   $standalone True when DF Inhalt itself is not available: the link gets its own floating bar.
-	 * @return void
-	 */
-	private static function render_layout_link( $url, $standalone ) {
-		$link = sprintf(
-			'<a class="df-inhalt-toolbar__layout" href="%1$s" title="%2$s"><span class="dashicons dashicons-layout" aria-hidden="true"></span><span>%3$s</span></a>',
-			esc_url( $url ),
-			esc_attr__( 'Open the DF Panel to arrange the sections of this page', 'df-editor' ),
-			esc_html__( 'Layout', 'df-editor' )
-		);
-		if ( $standalone ) {
-			printf(
-				'<nav class="df-inhalt-ui df-inhalt-toolbar df-inhalt-toolbar--layout-only" aria-label="%1$s">%2$s</nav>',
-				esc_attr__( 'DF Panel', 'df-editor' ),
-				$link // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped above.
-			);
-			return;
-		}
-		echo $link; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped above.
 	}
 
 	/**

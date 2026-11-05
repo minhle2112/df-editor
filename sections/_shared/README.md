@@ -11,7 +11,8 @@ Load from a template with `require_once DF_EDITOR_DIR . 'sections/_shared/helper
 Size comes from the section CSS (`.df-<type> .df-icon { width; height }`).
 
 Icons: `check`, `phone`, `mail`, `clock`, `map-pin`, `star`, `shield`, `wrench`, `flame`, `droplet`,
-`home`, `leaf`, `bolt`, `users`, `calendar`, `arrow-right`, `arrow-left`.
+`home`, `leaf`, `bolt`, `users`, `calendar`, `arrow-right`, `arrow-left`, `building`, `play`,
+`target`, `eye`, `gem`, `heart`, `moon`.
 Themes can add/replace icons with the filter `df_editor_icons` (name => inner SVG markup).
 
 Note: `wp_kses_post` strips SVG, so icons cannot go into a button's `before`/`after` args;

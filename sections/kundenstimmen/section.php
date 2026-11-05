@@ -65,7 +65,9 @@ if ( 'cpt' === $s->opt( 'source' ) ) {
 		$cards[] = static function () use ( $post, $photos ) {
 			$company = (string) get_post_meta( $post->ID, '_df_company', true );
 			$rating  = (int) get_post_meta( $post->ID, '_df_rating', true );
-			$quote   = wp_kses( wpautop( do_blocks( (string) $post->post_content ) ), DF_Content::richtext_tags() );
+			// Plain text needs no do_blocks() (nested render_block filters would see it as a top-level block).
+			$raw     = (string) $post->post_content;
+			$quote   = wp_kses( wpautop( has_blocks( $raw ) ? do_blocks( $raw ) : $raw ), DF_Content::richtext_tags() );
 			$thumb   = $photos ? (int) get_post_thumbnail_id( $post ) : 0;
 
 			df_region_open(
@@ -110,14 +112,21 @@ if ( 'cpt' === $s->opt( 'source' ) ) {
 		$rating  = (int) df_item_setting( $s, $item->index(), 'rating', 0 );
 		$cards[] = static function () use ( $item, $rating, $photos, $can_edit ) {
 			?>
-			<div class="df-kundenstimmen__item">
+			<div class="df-kundenstimmen__item"<?php $item->attrs(); ?>>
 				<figure class="df-kundenstimmen__card">
-					<?php df_kundenstimmen_stars( $rating ); ?>
+					<?php if ( $can_edit || df_field_filled( $item->value( 'source' ) ) ) : ?>
+						<div class="df-kundenstimmen__top">
+							<?php df_kundenstimmen_stars( $rating ); ?>
+							<span class="df-kundenstimmen__source"><?php $item->text( 'source' ); ?></span>
+						</div>
+					<?php else : ?>
+						<?php df_kundenstimmen_stars( $rating ); ?>
+					<?php endif; ?>
 					<blockquote class="df-kundenstimmen__quote">
 						<?php $item->richtext( 'quote', array( 'class' => 'df-kundenstimmen__quote-text' ) ); ?>
 					</blockquote>
 					<figcaption class="df-kundenstimmen__author">
-						<?php if ( $photos ) : ?>
+						<?php if ( $photos && $item->has_image( 'image' ) ) : ?>
 							<span class="df-frame df-kundenstimmen__photo" style="--df-ratio: <?php echo esc_attr( $item->aspect_ratio( 'image' ) ?: '1/1' ); ?>">
 								<?php $item->image( 'image', array( 'size' => 'thumbnail', 'loading' => 'lazy' ) ); ?>
 							</span>
@@ -129,6 +138,9 @@ if ( 'cpt' === $s->opt( 'source' ) ) {
 							<?php endif; ?>
 						</span>
 					</figcaption>
+					<?php if ( $can_edit || df_field_filled( $item->value( 'link' ) ) ) : ?>
+						<p class="df-kundenstimmen__link"><?php $item->button( 'link', array( 'class' => 'df-kundenstimmen__link-a' ) ); ?></p>
+					<?php endif; ?>
 				</figure>
 			</div>
 			<?php
@@ -140,7 +152,18 @@ if ( ! $cards && ! $can_edit ) {
 	return; // Nothing to show for visitors (heading alone would be empty).
 }
 
-df_section_head( $s, 'kundenstimmen', $h );
+df_section_head( $s, 'kundenstimmen', $h, 'compact' === $s->opt( 'head_style' ) ? array( 'class' => 'df-kundenstimmen__head--compact' ) : array() );
+
+if ( $can_edit || df_field_filled( $s->value( 'disclosure_title' ) ) ) :
+	?>
+	<details class="df-kundenstimmen__disclosure">
+		<summary class="df-kundenstimmen__disclosure-title"><?php $s->text( 'disclosure_title' ); ?></summary>
+		<?php if ( $can_edit || df_field_filled( $s->value( 'disclosure_text' ) ) ) : ?>
+			<?php $s->richtext( 'disclosure_text', array( 'class' => 'df-kundenstimmen__disclosure-text df-muted' ) ); ?>
+		<?php endif; ?>
+	</details>
+	<?php
+endif;
 
 if ( ! $cards ) {
 	echo '<p class="df-kundenstimmen__empty df-muted">' . esc_html__( 'No published testimonials found (post type df_referenz). This notice is only visible to editors.', 'df-editor' ) . '</p>';
@@ -152,7 +175,7 @@ if ( $slider && class_exists( 'DF_Assets' ) ) {
 	DF_Assets::enqueue_section_script( 'kundenstimmen' ); // view.js only when this instance needs it.
 }
 ?>
-<div class="df-kundenstimmen__wrap"<?php echo $slider ? ' data-df-slider' : ''; ?>>
+<div class="df-kundenstimmen__wrap<?php echo 'border' === $s->opt( 'card_style' ) ? ' df-kundenstimmen__wrap--border' : ''; ?>"<?php echo $slider ? ' data-df-slider' : ''; ?>>
 	<div
 		id="<?php echo esc_attr( $track_id ); ?>"
 		class="df-kundenstimmen__track"

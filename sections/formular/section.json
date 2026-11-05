@@ -13,9 +13,9 @@
 		"heading_level": { "label": "Überschrift-Ebene", "values": ["h2", "h3"], "default": "h2", "labels": { "h2": "Heading 2 (H2)", "h3": "Heading 3 (H3)" } }
 	},
 	"fields": {
-		"eyebrow": { "type": "text", "label": "Dachzeile", "default": "Kontakt", "max_length": 60 },
+		"eyebrow": { "type": "text", "optional": true, "label": "Dachzeile", "default": "Kontakt", "max_length": 60 },
 		"title": { "type": "text", "label": "Überschrift", "default": "Schreiben Sie uns", "max_length": 100 },
-		"text": { "type": "richtext", "label": "Text", "default": "<p>Wir melden uns in der Regel innerhalb eines Werktags bei Ihnen.</p>", "max_length": 600 },
+		"text": { "type": "richtext", "optional": true, "label": "Text", "default": "<p>Wir melden uns in der Regel innerhalb eines Werktags bei Ihnen.</p>", "max_length": 600 },
 		"contact_title": { "type": "text", "label": "Überschrift Kontaktbox", "default": "So erreichen Sie uns", "max_length": 80 }
 	}
 }

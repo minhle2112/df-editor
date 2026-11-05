@@ -43,16 +43,17 @@
 .df-section { scroll-margin-top: var(--df-scroll-offset, 6rem); }
 
 /* ---------- Spacing ---------- */
-.df-pt-0  { padding-top: 0; }
-.df-pt-s  { padding-top: var(--wp--preset--spacing--40, 1.5rem); }
-.df-pt-m  { padding-top: var(--wp--preset--spacing--60, 3rem); }
-.df-pt-l  { padding-top: var(--wp--preset--spacing--70, 5rem); }
-.df-pt-xl { padding-top: var(--wp--preset--spacing--80, 7rem); }
-.df-pb-0  { padding-bottom: 0; }
-.df-pb-s  { padding-bottom: var(--wp--preset--spacing--40, 1.5rem); }
-.df-pb-m  { padding-bottom: var(--wp--preset--spacing--60, 3rem); }
-.df-pb-l  { padding-bottom: var(--wp--preset--spacing--70, 5rem); }
-.df-pb-xl { padding-bottom: var(--wp--preset--spacing--80, 7rem); }
+/* --df-pad-top/bottom: the section padding, e.g. for min-heights that include it (hero). */
+.df-pt-0  { --df-pad-top: 0px; padding-top: 0; }
+.df-pt-s  { --df-pad-top: var(--wp--preset--spacing--40, 1.5rem); padding-top: var(--df-pad-top); }
+.df-pt-m  { --df-pad-top: var(--wp--preset--spacing--60, 3rem); padding-top: var(--df-pad-top); }
+.df-pt-l  { --df-pad-top: var(--wp--preset--spacing--70, 5rem); padding-top: var(--df-pad-top); }
+.df-pt-xl { --df-pad-top: var(--wp--preset--spacing--80, 7rem); padding-top: var(--df-pad-top); }
+.df-pb-0  { --df-pad-bottom: 0px; padding-bottom: 0; }
+.df-pb-s  { --df-pad-bottom: var(--wp--preset--spacing--40, 1.5rem); padding-bottom: var(--df-pad-bottom); }
+.df-pb-m  { --df-pad-bottom: var(--wp--preset--spacing--60, 3rem); padding-bottom: var(--df-pad-bottom); }
+.df-pb-l  { --df-pad-bottom: var(--wp--preset--spacing--70, 5rem); padding-bottom: var(--df-pad-bottom); }
+.df-pb-xl { --df-pad-bottom: var(--wp--preset--spacing--80, 7rem); padding-bottom: var(--df-pad-bottom); }
 
 /* ---------- Farbschema (colour schemes) ---------- */
 .df-scheme-hell,
@@ -133,12 +134,13 @@
 	justify-content: center;
 	gap: .5em;
 	min-height: 2.75rem;
-	padding: .75em 1.5em;
-	border: 2px solid var(--df-btn-bg, currentColor);
+	padding: var(--df-btn-padding, .75em 1.5em);
+	border: var(--df-btn-border, 2px) solid var(--df-btn-bg, currentColor);
 	border-radius: var(--df-btn-radius);
 	background: var(--df-btn-bg, #111);
 	color: var(--df-btn-fg, #fff);
 	font: inherit;
+	font-size: var(--df-btn-size, inherit);
 	font-weight: 600;
 	line-height: 1.2;
 	text-decoration: none;

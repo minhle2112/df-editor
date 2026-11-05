@@ -14,12 +14,12 @@
 		"heading_level": { "label": "Überschrift-Ebene", "values": ["h2", "h3"], "default": "h2", "labels": { "h2": "Heading 2 (H2)", "h3": "Heading 3 (H3)" } }
 	},
 	"fields": {
-		"eyebrow": { "type": "text", "label": "Dachzeile", "default": "Jetzt anfragen", "max_length": 60 },
+		"eyebrow": { "type": "text", "optional": true, "label": "Dachzeile", "default": "Jetzt anfragen", "max_length": 60 },
 		"title": { "type": "text", "label": "Überschrift", "default": "Wir sind für Sie da", "max_length": 80 },
-		"text": { "type": "richtext", "label": "Text", "default": "<p>Rufen Sie uns an oder schreiben Sie uns – wir melden uns innerhalb von 24 Stunden.</p>", "max_length": 400 },
-		"cta1": { "type": "button", "label": "Button 1", "default": { "text": "Kontakt aufnehmen", "url": "/kontakt/" }, "max_length": 40 },
-		"cta2": { "type": "button", "label": "Button 2", "default": { "text": "Mehr erfahren", "url": "#" }, "max_length": 40 },
-		"image": { "type": "image", "label": "Foto Ansprechpartner", "aspect_ratio": "1/1" },
-		"phone": { "type": "button", "label": "Telefon", "default": { "text": "0221 123 456 0", "url": "tel:+492211234560" }, "max_length": 40 }
+		"text": { "type": "richtext", "optional": true, "label": "Text", "default": "<p>Rufen Sie uns an oder schreiben Sie uns – wir melden uns innerhalb von 24 Stunden.</p>", "max_length": 400 },
+		"cta1": { "type": "button", "optional": true, "label": "Button 1", "default": { "text": "Kontakt aufnehmen", "url": "/kontakt/" }, "max_length": 40 },
+		"cta2": { "type": "button", "optional": true, "label": "Button 2", "default": { "text": "Mehr erfahren", "url": "#" }, "max_length": 40 },
+		"image": { "type": "image", "optional": true, "label": "Foto Ansprechpartner", "aspect_ratio": "1/1" },
+		"phone": { "type": "button", "optional": true, "label": "Telefon", "default": { "text": "0221 123 456 0", "url": "tel:+492211234560" }, "max_length": 40 }
 	}
 }

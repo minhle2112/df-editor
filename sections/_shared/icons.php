@@ -44,6 +44,13 @@ if ( ! function_exists( 'df_icon_set' ) ) {
 			'calendar'    => '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>',
 			'arrow-right' => '<path d="M5 12h14M13 6l6 6-6 6"/>',
 			'arrow-left'  => '<path d="M19 12H5M11 6l-6 6 6 6"/>',
+			'building'    => '<path d="M4 21V4h11v17"/><path d="M15 9h5v12"/><path d="M2 21h20M8 8h3M8 12h3M8 16h3"/>',
+			'play'        => '<circle cx="12" cy="12" r="9"/><path d="m10 8.5 5.5 3.5-5.5 3.5z"/>',
+			'target'      => '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/>',
+			'eye'         => '<path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',
+			'gem'         => '<path d="M6 3h12l4 6-10 12L2 9z"/><path d="M2 9h20"/><path d="m10 3-2 6 4 12 4-12-2-6"/>',
+			'heart'       => '<path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/>',
+			'moon'        => '<path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/>',
 		);
 
 		/**

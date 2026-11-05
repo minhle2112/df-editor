@@ -13,6 +13,8 @@
 
 defined( 'ABSPATH' ) || exit;
 
+require_once DF_EDITOR_DIR . 'sections/_shared/helpers.php';
+
 $h        = 'h3' === $s->opt( 'heading_level' ) ? 'h3' : 'h2';
 $h_side   = 'h3' === $h ? 'h4' : 'h3';
 $can_edit = $s->can_edit();
@@ -31,7 +33,9 @@ if ( '' === trim( $form ) && ! $is_staff && ! $with ) {
 <div class="df-formular__grid">
 	<div class="df-formular__main">
 		<div class="df-formular__head">
+<?php if ( $can_edit || df_field_filled( $s->value( 'eyebrow' ) ) ) : ?>
 			<p class="df-eyebrow"><?php $s->text( 'eyebrow' ); ?></p>
+<?php endif; ?>
 			<<?php echo $h; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- whitelisted ?> class="df-formular__title df-title"><?php $s->text( 'title' ); ?></<?php echo $h; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
 			<?php if ( '' !== $text || $can_edit ) : ?>
 				<?php $s->richtext( 'text', array( 'class' => 'df-formular__text' ) ); ?>

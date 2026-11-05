@@ -1,0 +1,384 @@
+# Copyright (C) 2026 Digitale Formate
+# This file is distributed under the GPL-2.0-or-later.
+msgid ""
+msgstr ""
+"Project-Id-Version: DF Editor 0.1.0\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/df-editor\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2026-11-05T14:09:22+00:00\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"X-Generator: WP-CLI 2.12.0\n"
+"X-Domain: df-editor\n"
+
+#. Plugin Name of the plugin
+#: df-editor.php
+msgid "DF Editor"
+msgstr ""
+
+#. Description of the plugin
+#: df-editor.php
+msgid "Section library, page layouts and front-end content editing (DF Inhalt) by Digitale Formate."
+msgstr ""
+
+#. Author of the plugin
+#: df-editor.php
+msgid "Digitale Formate"
+msgstr ""
+
+#: assets/blocks/editor.js:364
+msgid "The page has unsaved changes. They must be saved (and go live) before you edit the texts. Save now?"
+msgstr ""
+
+#: assets/blocks/editor.js:392
+msgid "Save the page first, then edit its texts on the page."
+msgstr ""
+
+#: assets/blocks/editor.js:421
+msgid "Loading preview…"
+msgstr ""
+
+#: assets/blocks/editor.js:430
+msgid "Preview could not be loaded."
+msgstr ""
+
+#: assets/blocks/editor.js:436
+msgid "This section renders no output with the current settings."
+msgstr ""
+
+#: assets/blocks/editor.js:462
+msgid "Colour scheme"
+msgstr ""
+
+#. translators: 1: characters used, 2: maximum
+#: assets/blocks/editor.js:500
+#, js-format
+msgid "%1$d / %2$d characters"
+msgstr ""
+
+#: assets/blocks/editor.js:572
+#: assets/blocks/editor.js:573
+#: assets/blocks/editor.js:695
+#: assets/blocks/editor.js:808
+#: assets/blocks/editor.js:809
+msgid "Link"
+msgstr ""
+
+#: assets/blocks/editor.js:572
+msgid "Search or paste a URL"
+msgstr ""
+
+#: assets/blocks/editor.js:577
+msgid "Apply"
+msgstr ""
+
+#: assets/blocks/editor.js:578
+msgid "Remove link"
+msgstr ""
+
+#: assets/blocks/editor.js:579
+msgid "Cancel"
+msgstr ""
+
+#: assets/blocks/editor.js:692
+msgid "Formatting"
+msgstr ""
+
+#: assets/blocks/editor.js:693
+msgid "Bold"
+msgstr ""
+
+#: assets/blocks/editor.js:694
+msgid "Italic"
+msgstr ""
+
+#: assets/blocks/editor.js:696
+msgid "Bulleted list"
+msgstr ""
+
+#: assets/blocks/editor.js:697
+msgid "Numbered list"
+msgstr ""
+
+#. translators: %s: aspect ratio
+#: assets/blocks/editor.js:746
+#, js-format
+msgid "Shown in %s format."
+msgstr ""
+
+#: assets/blocks/editor.js:750
+msgid "Loading…"
+msgstr ""
+
+#: assets/blocks/editor.js:750
+msgid "Placeholder image"
+msgstr ""
+
+#: assets/blocks/editor.js:763
+msgid "Replace"
+msgstr ""
+
+#: assets/blocks/editor.js:763
+msgid "Select image"
+msgstr ""
+
+#: assets/blocks/editor.js:768
+msgid "Reset image"
+msgstr ""
+
+#: assets/blocks/editor.js:772
+msgid "Alt text (optional, overrides the media library)"
+msgstr ""
+
+#: assets/blocks/editor.js:806
+msgid "Button text"
+msgstr ""
+
+#: assets/blocks/editor.js:810
+msgid "Link missing"
+msgstr ""
+
+#: assets/blocks/editor.js:811
+msgid "Open in new tab"
+msgstr ""
+
+#. translators: %s: field label
+#. translators: %s: section name
+#: assets/blocks/editor.js:857
+#: assets/blocks/editor.js:1294
+#, js-format
+msgid "%s (hidden)"
+msgstr ""
+
+#: assets/blocks/editor.js:1040
+msgid "Preview could not be updated."
+msgstr ""
+
+#: assets/blocks/editor.js:1142
+msgid "Section copied – it has its own texts now."
+msgstr ""
+
+#: assets/blocks/editor.js:1142
+msgid "Section copied."
+msgstr ""
+
+#. translators: 1: minimum number, 2: item label
+#: assets/blocks/editor.js:1164
+#, js-format
+msgid "This section needs at least %1$d × %2$s."
+msgstr ""
+
+#. translators: 1: maximum number, 2: item label
+#: assets/blocks/editor.js:1216
+#, js-format
+msgid "This section allows at most %1$d × %2$s."
+msgstr ""
+
+#. translators: %s: section name
+#: assets/blocks/editor.js:1279
+#, js-format
+msgid "Preview of the %s section"
+msgstr ""
+
+#: assets/blocks/editor.js:1295
+msgid "Not shown on the site. Turn off “Hide section” in the sidebar to show it again."
+msgstr ""
+
+#: assets/blocks/editor.js:1315
+msgid "Preview is not available."
+msgstr ""
+
+#: assets/blocks/editor.js:1338
+msgid "Hidden"
+msgstr ""
+
+#: assets/blocks/editor.js:1341
+msgid "Click “Edit texts” to change texts"
+msgstr ""
+
+#. translators: 1: count, 2: item label
+#: assets/blocks/editor.js:1356
+#, js-format
+msgid "%1$d × %2$s – click to edit"
+msgstr ""
+
+#. translators: 1: item label, 2: count, 3: maximum
+#: assets/blocks/editor.js:1361
+#, js-format
+msgid "%1$s · %2$d of max. %3$d"
+msgstr ""
+
+#: assets/blocks/editor.js:1362
+msgid "Move, duplicate or remove with the buttons in each row."
+msgstr ""
+
+#. translators: %s: item label
+#: assets/blocks/editor.js:1367
+#: assets/blocks/editor.js:1440
+#, js-format
+msgid "Add %s"
+msgstr ""
+
+#. translators: %s: current variant
+#: assets/blocks/editor.js:1381
+#, js-format
+msgid "Variant: %s"
+msgstr ""
+
+#: assets/blocks/editor.js:1399
+msgid "Edit texts on the page (opens in a new tab)"
+msgstr ""
+
+#: assets/blocks/editor.js:1400
+#: assets/blocks/editor.js:1452
+msgid "Edit texts"
+msgstr ""
+
+#: assets/blocks/editor.js:1422
+msgid "Texts moved into the block. Save the page to keep them."
+msgstr ""
+
+#: assets/blocks/editor.js:1424
+msgid "The texts could not be loaded."
+msgstr ""
+
+#: assets/blocks/editor.js:1431
+msgid "Content"
+msgstr ""
+
+#. translators: 1: count, 2: item label, 3: minimum, 4: maximum
+#: assets/blocks/editor.js:1439
+#, js-format
+msgid "%1$d × %2$s (%3$d–%4$d). Select one in the canvas or in List View to edit it."
+msgstr ""
+
+#: assets/blocks/editor.js:1446
+msgid "Texts"
+msgstr ""
+
+#: assets/blocks/editor.js:1447
+msgid "This section still uses texts edited on the page (DF Inhalt)."
+msgstr ""
+
+#: assets/blocks/editor.js:1453
+msgid "(opens in a new tab)"
+msgstr ""
+
+#: assets/blocks/editor.js:1456
+msgid "Or move the current texts into the block and edit everything here in the sidebar:"
+msgstr ""
+
+#: assets/blocks/editor.js:1457
+msgid "Move texts into the block"
+msgstr ""
+
+#: assets/blocks/editor.js:1462
+msgid "Layout"
+msgstr ""
+
+#: assets/blocks/editor.js:1464
+msgid "Variant"
+msgstr ""
+
+#: assets/blocks/editor.js:1471
+msgid "Spacing top"
+msgstr ""
+
+#: assets/blocks/editor.js:1472
+msgid "Spacing bottom"
+msgstr ""
+
+#: assets/blocks/editor.js:1475
+msgid "Width"
+msgstr ""
+
+#: assets/blocks/editor.js:1480
+msgid "Number of items"
+msgstr ""
+
+#. translators: 1: minimum, 2: maximum
+#: assets/blocks/editor.js:1481
+#, js-format
+msgid "Between %1$d and %2$d."
+msgstr ""
+
+#: assets/blocks/editor.js:1495
+msgid "Hide section"
+msgstr ""
+
+#: assets/blocks/editor.js:1496
+msgid "Not shown on the site."
+msgstr ""
+
+#: assets/blocks/editor.js:1496
+msgid "Shown on the site."
+msgstr ""
+
+#: assets/blocks/editor.js:1506
+msgid "Options"
+msgstr ""
+
+#: assets/blocks/editor.js:1517
+msgid "No options for this variant."
+msgstr ""
+
+#: assets/blocks/editor.js:1526
+msgid "Anchor"
+msgstr ""
+
+#: assets/blocks/editor.js:1527
+msgid "Optional HTML anchor for links to this section (letters, numbers and hyphens)."
+msgstr ""
+
+#: assets/blocks/editor.js:1538
+msgid "Section ID"
+msgstr ""
+
+#: assets/blocks/editor.js:1543
+msgid "Fixed ID of this section (HTML id)."
+msgstr ""
+
+#: assets/blocks/editor.js:1544
+msgid "Fixed ID that links this section to its texts and images. Texts and images are edited on the page with DF Inhalt."
+msgstr ""
+
+#: assets/blocks/editor.js:1641
+msgid "Duplicate"
+msgstr ""
+
+#: assets/blocks/editor.js:1642
+msgid "Remove"
+msgstr ""
+
+#. translators: 1: minimum, 2: item label
+#: assets/blocks/editor.js:1644
+#, js-format
+msgid "At least %1$d × %2$s."
+msgstr ""
+
+#. translators: %s: item name, e.g. "Frage 3"
+#: assets/blocks/editor.js:1665
+#, js-format
+msgid "Move %s up"
+msgstr ""
+
+#. translators: %s: item name
+#: assets/blocks/editor.js:1666
+#, js-format
+msgid "Move %s down"
+msgstr ""
+
+#. translators: %s: item name
+#: assets/blocks/editor.js:1667
+#, js-format
+msgid "Duplicate %s"
+msgstr ""
+
+#. translators: %s: item name
+#: assets/blocks/editor.js:1668
+#, js-format
+msgid "Remove %s"
+msgstr ""

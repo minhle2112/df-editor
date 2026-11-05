@@ -1,11 +1,12 @@
 /**
  * DF Editor – block editor styles.
  *
- * Canvas part (.df-block, .df-block-label, .df-block-preview__*, .df-block-placeholder,
- * .df-block-notice, .df-block-example) must load inside the editor iframe
- * (enqueue_block_assets, is_admin()). Sidebar part (.df-block-scheme*, .df-block-row,
- * .df-block-help, .df-block-readonly, .df-block-texts, .df-block-inhalt-link) must load in the admin
- * document (enqueue_block_editor_assets). Loading the whole file in both places is safe.
+ * Canvas part (.df-block, .df-block-label, .df-block-preview__*, .df-block-live*, .df-block-items*,
+ * .df-item-row*, .df-block-placeholder, .df-block-notice, .df-block-example) must load inside the
+ * editor iframe (enqueue_block_assets, is_admin()). Sidebar part (.df-block-scheme*, .df-block-row,
+ * .df-block-help, .df-block-readonly, .df-field*, .df-rt*, .df-image-field*, .df-button-field,
+ * .df-item-actions) must load in the admin document (enqueue_block_editor_assets). Loading the
+ * whole file in both places is safe.
  */
 
 /* ---------- shared ---------- */
@@ -297,7 +298,376 @@
 	margin-top: 16px;
 }
 
+/* ---------- block content: live preview ---------- */
+.df-block-live {
+	position: relative;
+}
+
+/* Clicks select the section or the clicked item (handled in JS); nothing inside is interactive. */
+.df-block-live__content {
+	user-select: none;
+	cursor: pointer;
+}
+
+.df-block-live__content [data-df-item] {
+	cursor: pointer;
+}
+
+.df-block.is-df-selected .df-block-live__content [data-df-item]:hover,
+.df-block.has-df-selected-item .df-block-live__content [data-df-item]:hover {
+	outline: 1px dashed var(--wp-admin-theme-color, #3858e9);
+	outline-offset: 2px;
+}
+
+.df-block-live.is-loading .df-block-live__content {
+	opacity: 0.85;
+	transition: opacity 0.2s;
+}
+
+.df-block-live__spinner {
+	position: absolute;
+	top: 8px;
+	right: 8px;
+	z-index: 21;
+	padding: 4px;
+	background: #fff;
+	border-radius: 2px;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.df-block-live__spinner .components-spinner {
+	margin: 0;
+}
+
+/* ---------- block content: items strip (real child blocks) ---------- */
+.df-block-items {
+	padding: 12px 16px 16px;
+	font: 13px/1.4 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+	color: #1e1e1e;
+	background: #f6f7f7;
+	border-top: 1px solid #dcdcde;
+}
+
+.df-block-items__list.is-hidden {
+	display: none;
+}
+
+/* Unselected section: only a slim hint, shown on hover. */
+.df-block-items.is-collapsed {
+	padding: 0;
+	background: none;
+	border-top: 0;
+}
+
+.df-block-items.is-collapsed > :not(.df-block-items__hint) {
+	display: none;
+}
+
+.df-block-items__hint {
+	display: block;
+	width: 100%;
+	margin: 0;
+	padding: 4px 16px;
+	font: 12px/1.4 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+	color: #1e1e1e;
+	text-align: left;
+	background: #f6f7f7;
+	border: 0;
+	border-top: 1px solid #dcdcde;
+	cursor: pointer;
+	opacity: 0;
+	transition: opacity 0.15s;
+}
+
+.df-block:hover .df-block-items__hint,
+.df-block-items__hint:focus {
+	opacity: 1;
+}
+
+.df-block-items__head {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: baseline;
+	justify-content: space-between;
+	gap: 4px 12px;
+	margin-bottom: 8px;
+}
+
+.df-block-items__title {
+	font-size: 11px;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.02em;
+}
+
+.df-block-items__help {
+	font-size: 12px;
+	color: #757575;
+}
+
+.df-block-items__list {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+}
+
+.df-block-items__list > .block-editor-block-list__block {
+	margin: 0 !important;
+	max-width: none !important;
+}
+
+.df-item-row {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	min-height: 40px;
+	padding: 6px 10px;
+	background: #fff;
+	border: 1px solid #dcdcde;
+	border-radius: 2px;
+	cursor: pointer;
+}
+
+.df-item-row.is-selected {
+	border-color: var(--wp-admin-theme-color, #3858e9);
+	box-shadow: inset 0 0 0 1px var(--wp-admin-theme-color, #3858e9);
+}
+
+.df-item-row__n {
+	flex: 0 0 auto;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-width: 22px;
+	height: 22px;
+	font-size: 11px;
+	font-weight: 600;
+	color: #50575e;
+	background: #f0f0f1;
+	border-radius: 11px;
+}
+
+.df-item-row__thumb {
+	flex: 0 0 auto;
+	width: 32px;
+	height: 32px;
+	object-fit: cover;
+	border-radius: 2px;
+}
+
+.df-item-row__text {
+	display: flex;
+	flex-direction: column;
+	min-width: 0;
+}
+
+.df-item-row__title,
+.df-item-row__summary {
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+}
+
+.df-item-row__summary {
+	font-size: 12px;
+	color: #757575;
+}
+
+.df-item-row__text {
+	flex: 1 1 auto;
+}
+
+.df-item-row__actions {
+	display: inline-flex;
+	flex: 0 0 auto;
+	gap: 2px;
+	margin-left: auto;
+	opacity: 0;
+	transition: opacity 0.15s;
+}
+
+.df-item-row:hover .df-item-row__actions,
+.df-item-row.is-selected .df-item-row__actions,
+.df-item-row:focus-within .df-item-row__actions {
+	opacity: 1;
+}
+
+.components-button.df-item-row__btn {
+	min-width: 28px;
+	height: 28px;
+	padding: 2px;
+}
+
+.components-button.df-block-items__add {
+	margin-top: 8px;
+}
+
+/* ---------- sidebar: generated fields ---------- */
+.df-field + .df-field {
+	margin-top: 16px;
+}
+
+.df-field.is-optional.is-off .df-field__toggle {
+	opacity: 0.75;
+}
+
+.df-field.is-optional > .df-field__toggle {
+	margin-bottom: 8px;
+}
+
+.df-button-field {
+	margin: 0;
+	padding: 0;
+	border: 0;
+}
+
+.df-button-field > * + * {
+	margin-top: 8px !important;
+}
+
+.df-button-field__url input {
+	width: 100%;
+}
+
+.df-rt__toolbar {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 2px;
+	margin-bottom: 4px;
+}
+
+.components-button.df-rt__btn {
+	min-width: 30px;
+	justify-content: center;
+}
+
+.components-button.df-rt__src {
+	margin-left: auto;
+	font-size: 11px;
+}
+
+.df-rt__area {
+	min-height: 72px;
+	max-height: 320px;
+	overflow: auto;
+	padding: 6px 8px;
+	font-size: 13px;
+	line-height: 1.5;
+	background: #fff;
+	border: 1px solid #949494;
+	border-radius: 2px;
+}
+
+.df-rt__area:focus {
+	outline: none;
+	border-color: var(--wp-admin-theme-color, #3858e9);
+	box-shadow: 0 0 0 1px var(--wp-admin-theme-color, #3858e9);
+}
+
+.df-rt__area p,
+.df-rt__area ul,
+.df-rt__area ol {
+	margin: 0 0 0.5em;
+}
+
+.df-rt__area ul,
+.df-rt__area ol {
+	padding-left: 1.4em;
+}
+
+.df-image-field__preview {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	min-height: 64px;
+	margin-bottom: 8px;
+	background: #f0f0f1;
+	border-radius: 2px;
+	overflow: hidden;
+}
+
+.df-image-field__preview img {
+	display: block;
+	max-width: 100%;
+	max-height: 160px;
+	object-fit: contain;
+}
+
+.df-image-field__empty {
+	font-size: 12px;
+	color: #757575;
+}
+
+.df-image-field__actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+	margin-bottom: 8px;
+}
+
+.df-items-summary {
+	margin-top: 20px;
+	padding-top: 12px;
+	border-top: 1px solid #e0e0e0;
+}
+
+.df-items-summary .df-block-help {
+	margin: 0 0 8px;
+}
+
+.df-item-actions {
+	display: flex;
+	gap: 8px;
+	margin-top: 20px;
+}
+
+.df-item-crumb {
+	margin: 0 0 12px;
+	font-size: 12px;
+	color: #50575e;
+}
+
+.components-button.df-item-back {
+	height: auto;
+	padding: 0;
+	font-size: 12px;
+}
+
+.df-field-warning {
+	margin: 4px 0 8px;
+	font-size: 12px;
+	color: #b32d2e;
+}
+
+.df-rt__link-form {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	min-width: 280px;
+	padding: 12px;
+}
+
+.df-rt__link-actions {
+	display: flex;
+	gap: 8px;
+}
+
+.df-rt__area:empty::before {
+	content: attr(data-placeholder);
+	color: #757575;
+}
+
+.df-block-help--dark {
+	color: #1e1e1e;
+}
+
 @media (prefers-reduced-motion: reduce) {
+	.df-block-live.is-loading .df-block-live__content,
+	.df-block-items__hint,
+	.df-item-row__actions {
+		transition: none;
+	}
+
 	.df-block-preview__previous {
 		transition: none;
 	}

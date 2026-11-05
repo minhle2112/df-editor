@@ -88,14 +88,10 @@
 	document.execCommand( 'defaultParagraphSeparator', false, 'p' );
 
 	const requestParams = new URLSearchParams( window.location.search );
-	// ?df_inhalt=open: start in edit mode (the DF Panel "Inhalt" tab uses it).
+	// ?df_inhalt=open: start in edit mode.
 	const autoOpen = Boolean( window.dfInhaltEditor.autoOpen ) || 'open' === requestParams.get( 'df_inhalt' );
-	// ?df_panel_frame=1: page shown inside the DF Panel preview iframe. The panel
-	// owns the controls there, so the floating toolbar stays hidden unless the
-	// Inhalt tab asked for edit mode.
-	const panelFrame = Boolean( window.dfInhaltEditor.panelFrame ) || '1' === requestParams.get( 'df_panel_frame' );
 
-	toolbar.hidden = panelFrame && ! autoOpen;
+	toolbar.hidden = false;
 
 	const fieldType = ( field ) => ( editors[ field.dataset.dfType ] ? field.dataset.dfType : 'text' );
 

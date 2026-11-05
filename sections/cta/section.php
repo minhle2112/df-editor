@@ -19,9 +19,12 @@ $can_edit = $s->can_edit();
 $phone_global = 'own' !== $s->opt( 'phone_source' );
 $phone_value  = $phone_global ? df_get( 'global.contact.phone' ) : $s->value( 'phone' );
 $phone_on     = 'contact' === $variant && ( $can_edit || $phone_global || df_field_filled( $phone_value ) );
+// Optional buttons: empty = not printed for visitors.
+$show_cta1 = $buttons > 0 && ( $can_edit || df_field_filled( $s->value( 'cta1' ) ) );
+$show_cta2 = $buttons > 1 && ( $can_edit || df_field_filled( $s->value( 'cta2' ) ) );
 ?>
 <div class="df-cta__grid">
-	<?php if ( 'contact' === $variant ) : ?>
+	<?php if ( 'contact' === $variant && $s->has_image( 'image' ) ) : ?>
 		<div class="df-frame df-cta__photo" style="--df-ratio: <?php echo esc_attr( $s->aspect_ratio( 'image' ) ?: '1/1' ); ?>">
 			<?php $s->image( 'image', array( 'size' => 'medium', 'loading' => 'lazy' ) ); ?>
 		</div>
@@ -32,10 +35,12 @@ $phone_on     = 'contact' === $variant && ( $can_edit || $phone_global || df_fie
 			<p class="df-eyebrow"><?php $s->text( 'eyebrow' ); ?></p>
 		<?php endif; ?>
 		<<?php echo $h; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- whitelisted ?> class="df-cta__title df-title"><?php $s->text( 'title' ); ?></<?php echo $h; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+<?php if ( $can_edit || df_field_filled( $s->value( 'text' ) ) ) : ?>
 		<?php $s->richtext( 'text', array( 'class' => 'df-cta__body df-lead' ) ); ?>
+<?php endif; ?>
 	</div>
 
-	<?php if ( $buttons > 0 || $phone_on ) : ?>
+	<?php if ( $show_cta1 || $show_cta2 || $phone_on ) : ?>
 		<div class="df-cta__actions df-actions">
 			<?php if ( $phone_on ) : ?>
 				<p class="df-cta__phone">
@@ -62,10 +67,10 @@ $phone_on     = 'contact' === $variant && ( $can_edit || $phone_global || df_fie
 					?>
 				</p>
 			<?php endif; ?>
-			<?php if ( $buttons > 0 ) : ?>
+			<?php if ( $show_cta1 ) : ?>
 				<?php $s->button( 'cta1', array( 'class' => 'df-btn df-btn--primary' ) ); ?>
 			<?php endif; ?>
-			<?php if ( $buttons > 1 ) : ?>
+			<?php if ( $show_cta2 ) : ?>
 				<?php $s->button( 'cta2', array( 'class' => 'df-btn df-btn--secondary' ) ); ?>
 			<?php endif; ?>
 		</div>

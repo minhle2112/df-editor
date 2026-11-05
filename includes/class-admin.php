@@ -71,12 +71,6 @@ final class DF_Admin {
 		$json   = $layout ? wp_json_encode( $layout, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES ) : '';
 		$key    = (string) get_post_meta( $post->ID, DF_Layout_Store::META_KEY, true );
 		wp_nonce_field( 'df_layout_save_' . $post->ID, self::NONCE );
-		if ( DF_Layout_Store::has_draft( $post->ID ) ) {
-			printf(
-				'<div class="notice notice-warning inline"><p>%s</p></div>',
-				esc_html__( 'This page has an unpublished DF Panel draft. Saving the layout here publishes this JSON and discards the draft.', 'df-editor' )
-			);
-		}
 		?>
 		<p>
 			<?php esc_html_e( 'Page key:', 'df-editor' ); ?>
@@ -183,7 +177,7 @@ final class DF_Admin {
 			return;
 		}
 
-		// Somebody published (DF Panel, CLI) after this screen was loaded: do not overwrite silently.
+		// Somebody published (CLI, another editor) after this screen was loaded: do not overwrite silently.
 		$current_rev = DF_Layout_Store::rev( $post_id );
 		if ( isset( $layout['rev'] ) && is_numeric( $layout['rev'] ) && (int) $layout['rev'] !== $current_rev && DF_Layout_Store::has_layout( $post_id ) ) {
 			self::notice(

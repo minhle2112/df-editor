@@ -8,7 +8,6 @@ WordPress plugin by **Digitale Formate**: a shared section library, page layouts
 - **Gutenberg blocks**: sections are registered as native dynamic blocks (`df/<type>`) generated from `section.json`, so pages can be arranged in the block editor.
 - **Page layouts as JSON** (post meta), with CLI import/export and validation.
 - **DF Inhalt**: click-to-edit texts and images directly on the page, for clients and editors.
-- **DF Panel**: optional full-screen layout editor (reorder, add, options, draft/publish, history, locks).
 - **DF Design**: global colours and fonts in the Customizer, with contrast checks.
 - Forms adapter (Contact Form 7, Fluent Forms), team and reference post types, plain-text fallback when the plugin is off.
 - Updates from GitHub releases (`DF_EDITOR_UPDATE_REPO`).

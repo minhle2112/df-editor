@@ -5,6 +5,13 @@
  * Field ID = {page_key}.{instance_id}.{field}
  * List items = {page_key}.{instance_id}.{list_key}.{n}.{subfield}  (n starts at 1)
  *
+ * Two content sources:
+ * - DF Inhalt (default, JSON layouts and v1 blocks): values come from DF Inhalt / df_content_values,
+ *   the layout "content" only provides defaults.
+ * - Block content (DF blocks v2, see docs/BLOCKS.md): "content" holds the values themselves
+ *   (fields + list items from the block), printed escaped without DF Inhalt and without
+ *   editing markup; can_edit() is false, so empty optional fields are left out.
+ *
  * @package DF_Editor
  */
 
@@ -14,6 +21,9 @@ defined( 'ABSPATH' ) || exit;
  * Shared field helpers for a section and its list items.
  */
 abstract class DF_Field_Scope {
+
+	/** Image value "no image" (optional image switched off); 0 / missing = placeholder image. */
+	public const NO_IMAGE = -1;
 
 	/** Field ID prefix incl. trailing dot, e.g. "home.hero-k3x9." */
 	protected string $prefix;
@@ -27,31 +37,89 @@ abstract class DF_Field_Scope {
 	/** Item number (1-based) for list items, 0 for the section itself. */
 	protected int $n = 0;
 
+	/** Block-content mode: "content" holds the values (no DF Inhalt). */
+	protected bool $blocks = false;
+
+	/** Block editor preview (block-content mode only): item markers for click-to-select. */
+	protected bool $preview = false;
+
 	public function field_id( string $field ): string {
 		return $this->prefix . $field;
 	}
 
 	public function text( string $field, array $args = array() ): void {
+		if ( $this->blocks ) {
+			DF_Content::render_value( 'text', $this->default_for( $field ), $this->args( $field, $args ) );
+			return;
+		}
 		DF_Content::text( $this->field_id( $field ), $this->args( $field, $args ) );
 	}
 
 	public function richtext( string $field, array $args = array() ): void {
+		if ( $this->blocks ) {
+			DF_Content::render_value( 'richtext', $this->default_for( $field ), $this->args( $field, $args ) );
+			return;
+		}
 		DF_Content::richtext( $this->field_id( $field ), $this->args( $field, $args ) );
 	}
 
 	public function button( string $field, array $args = array() ): void {
+		if ( $this->blocks ) {
+			DF_Content::render_value( 'button', $this->default_for( $field ), $this->args( $field, $args ) );
+			return;
+		}
 		DF_Content::button( $this->field_id( $field ), $this->args( $field, $args ) );
 	}
 
 	public function image( string $field, array $args = array() ): void {
+		if ( $this->blocks ) {
+			$a = $this->args( $field, $args );
+			if ( (int) $a['default'] <= 0 ) {
+				return; // Optional image switched off ("no image").
+			}
+			// A deleted attachment falls back to the placeholder image.
+			$a['default'] = DF_Content::placeholder_id();
+			$raw          = $this->content[ $field ] ?? null;
+			if ( is_array( $raw ) && isset( $raw['alt'] ) && is_string( $raw['alt'] ) && '' !== trim( $raw['alt'] ) && ! isset( $args['alt'] ) ) {
+				$a['alt'] = $raw['alt'];
+			}
+			DF_Content::render_value( 'image', $this->default_for( $field ), $a );
+			return;
+		}
 		DF_Content::image( $this->field_id( $field ), $this->args( $field, $args ) );
 	}
 
 	/**
 	 * Current value (saved or default) without output, e.g. for JSON-LD or "hide when empty".
+	 * Block-content mode: the block value (section.json default when the block has none).
 	 */
 	public function value( string $field ): mixed {
+		if ( $this->blocks ) {
+			return $this->default_for( $field );
+		}
 		return DF_Content::value( $this->field_id( $field ), $this->default_for( $field ) );
+	}
+
+	/**
+	 * Whether an image field has an image to show (false when an optional image is switched
+	 * off). Editors on the front end (DF Inhalt) always get the slot to fill it in.
+	 */
+	public function has_image( string $field ): bool {
+		return $this->can_edit() || (int) $this->value( $field ) > 0;
+	}
+
+	/**
+	 * Whether the values come from the block (DF blocks v2) instead of DF Inhalt.
+	 */
+	public function is_block_content(): bool {
+		return $this->blocks;
+	}
+
+	/**
+	 * Whether this render is the block editor preview (block-content mode only).
+	 */
+	public function is_preview(): bool {
+		return $this->preview;
 	}
 
 	/**
@@ -61,8 +129,12 @@ abstract class DF_Field_Scope {
 		return (string) ( $this->fields[ $field ]['aspect_ratio'] ?? '' );
 	}
 
+	/**
+	 * Whether the current user edits this content on the front end (DF Inhalt). Always false in
+	 * block-content mode: the texts are edited in the block editor, empty fields stay hidden.
+	 */
 	public function can_edit(): bool {
-		return DF_Content::can_edit();
+		return ! $this->blocks && DF_Content::can_edit();
 	}
 
 	/**
@@ -83,14 +155,25 @@ abstract class DF_Field_Scope {
 
 		switch ( $type ) {
 			case 'image':
+				if ( $this->blocks && is_array( $default ) ) {
+					$default = $default['id'] ?? 0; // Block value {id, alt}.
+				}
 				$id = is_numeric( $default ) ? (int) $default : 0;
+				if ( self::NO_IMAGE === $id ) {
+					return 0; // Optional image switched off: no image, not the placeholder.
+				}
 				return $id > 0 ? $id : DF_Content::placeholder_id();
 			case 'button':
 				$default = is_array( $default ) ? $default : array();
-				return array(
-					'text' => (string) ( $default['text'] ?? '' ),
-					'url'  => (string) ( $default['url'] ?? '' ),
+				$button  = array(
+					'text' => is_scalar( $default['text'] ?? '' ) ? (string) ( $default['text'] ?? '' ) : '',
+					'url'  => is_scalar( $default['url'] ?? '' ) ? (string) ( $default['url'] ?? '' ) : '',
 				);
+				// "Open in new tab" (block value, kept by wp df to-layout in the layout content).
+				if ( '_blank' === ( $default['target'] ?? '' ) ) {
+					$button['target'] = '_blank';
+				}
+				return $button;
 			default:
 				return is_scalar( $default ) ? (string) $default : '';
 		}
@@ -114,6 +197,10 @@ abstract class DF_Field_Scope {
 		}
 		if ( 'image' === ( $def['type'] ?? '' ) && ! empty( $def['aspect_ratio'] ) ) {
 			$base['aspect_ratio'] = (string) $def['aspect_ratio'];
+		}
+		// Button "open in new tab" from the layout content (DF Inhalt reads the target from args).
+		if ( 'button' === ( $def['type'] ?? '' ) && ! isset( $args['target'] ) && '_blank' === ( $base['default']['target'] ?? '' ) ) {
+			$base['target'] = '_blank';
 		}
 		if ( 'image' === ( $def['type'] ?? '' ) && ! isset( $args['object_fit'] ) ) {
 			$base['object_fit'] = 'cover';
@@ -141,15 +228,27 @@ class DF_Section extends DF_Field_Scope {
 	 * @param array  $instance Layout entry (id, section, variant, scheme, spacing, width, hidden, anchor, options, content).
 	 * @param array  $def      Section definition from DF_Registry.
 	 * @param string $page_key Page key (or "global").
+	 * @param array  $source   Content source: [] = DF Inhalt (default); ['blocks' => true, 'preview' => bool]
+	 *                         = block content (DF blocks v2): "content" holds the field values and
+	 *                         the list items, the number of list items is the item count.
 	 */
-	public function __construct( array $instance, array $def, string $page_key ) {
+	public function __construct( array $instance, array $def, string $page_key, array $source = array() ) {
 		$this->def      = $def;
 		$this->page_key = $page_key;
 		$this->instance = self::normalize( $instance, $def );
 		$this->prefix   = $page_key . '.' . $this->instance['id'] . '.';
 		$this->fields   = (array) ( $def['fields'] ?? array() );
 		$this->content  = (array) ( $this->instance['content'] ?? array() );
-		$this->options  = $this->instance['options'];
+		$this->blocks   = ! empty( $source['blocks'] );
+		$this->preview  = $this->blocks && ! empty( $source['preview'] );
+		if ( $this->blocks && ! empty( $def['list'] ) ) {
+			// Block content: exactly the items of the block (up to max), no min padding.
+			$items = $this->content[ (string) $def['list']['key'] ] ?? array();
+			$count = (string) min( (int) $def['list']['max'], is_array( $items ) ? count( $items ) : 0 );
+
+			$this->instance['options']['count'] = $count;
+		}
+		$this->options = $this->instance['options'];
 	}
 
 	/**
@@ -263,7 +362,7 @@ class DF_Section extends DF_Field_Scope {
 		$items   = array();
 		for ( $n = 1; $n <= $this->count(); $n++ ) {
 			// Layout content lists are 0-based JSON arrays; field numbers start at 1.
-			$items[] = new DF_Section_Item( $this->prefix . $key . '.' . $n . '.', (array) $list['fields'], (array) ( $content[ $n - 1 ] ?? array() ), $n );
+			$items[] = new DF_Section_Item( $this->prefix . $key . '.' . $n . '.', (array) $list['fields'], (array) ( $content[ $n - 1 ] ?? array() ), $n, $this->blocks, $this->preview );
 		}
 		return $items;
 	}
@@ -274,15 +373,29 @@ class DF_Section extends DF_Field_Scope {
  */
 class DF_Section_Item extends DF_Field_Scope {
 
-	public function __construct( string $prefix, array $fields, array $content, int $n ) {
+	public function __construct( string $prefix, array $fields, array $content, int $n, bool $blocks = false, bool $preview = false ) {
 		$this->prefix  = $prefix;
 		$this->fields  = $fields;
 		$this->content = $content;
 		$this->n       = $n;
+		$this->blocks  = $blocks;
+		$this->preview = $blocks && $preview;
 	}
 
 	/** 1-based item number. */
 	public function index(): int {
 		return $this->n;
+	}
+
+	/**
+	 * Prints the item marker attribute for the root element of an item (block editor preview
+	 * only: a click on the item selects its child block). Prints nothing anywhere else.
+	 *
+	 * Usage in section.php: <li class="df-x__item"<?php $item->attrs(); ?>>
+	 */
+	public function attrs(): void {
+		if ( $this->preview ) {
+			printf( ' data-df-item="%d"', (int) $this->n );
+		}
 	}
 }

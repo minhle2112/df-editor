@@ -11,13 +11,16 @@
 		"ratio": { "label": "Aufteilung", "values": ["50-50", "40-60"], "default": "50-50", "labels": { "50-50": "Equal width (50\/50)", "40-60": "Image narrower (40\/60)" } },
 		"image_style": { "label": "Bildstil", "values": ["plain", "rounded", "shadow"], "default": "rounded", "labels": { "plain": "Plain", "rounded": "Rounded corners", "shadow": "With shadow" } },
 		"heading_level": { "label": "Überschrift-Ebene", "values": ["h2", "h3"], "default": "h2", "labels": { "h2": "Heading 2 (H2)", "h3": "Heading 3 (H3)" } },
-		"show_button": { "label": "Button anzeigen", "values": ["yes", "no"], "default": "yes", "labels": { "yes": "Show button", "no": "Hide button" } }
+		"show_button": { "label": "Button anzeigen", "values": ["yes", "no"], "default": "yes", "labels": { "yes": "Show button", "no": "Hide button" } },
+		"eyebrow_style": { "label": "Dachzeilen-Stil", "values": ["plain", "pill"], "default": "plain", "labels": { "plain": "Plain text", "pill": "Pill with dot" } }
 	},
 	"fields": {
-		"eyebrow": { "type": "text", "label": "Dachzeile", "default": "Über uns", "max_length": 60 },
+		"eyebrow": { "type": "text", "optional": true, "label": "Dachzeile", "default": "Über uns", "max_length": 60 },
 		"title": { "type": "text", "label": "Überschrift", "default": "Überschrift", "max_length": 100 },
 		"text": { "type": "richtext", "label": "Text", "default": "<p>Beschreiben Sie hier in wenigen Sätzen Ihr Angebot.</p><ul><li>Vorteil eins</li><li>Vorteil zwei</li><li>Vorteil drei</li></ul>", "max_length": 1200 },
-		"cta": { "type": "button", "label": "Button", "default": { "text": "Mehr erfahren", "url": "#" }, "max_length": 40 },
+		"cta": { "type": "button", "optional": true, "label": "Button", "default": { "text": "Mehr erfahren", "url": "#" }, "max_length": 40 },
+		"cta2": { "type": "button", "optional": true, "label": "Button 2", "default": { "text": "", "url": "" }, "max_length": 40 },
+		"note": { "type": "text", "optional": true, "label": "Hinweis unter den Buttons", "default": "", "max_length": 140 },
 		"image": { "type": "image", "label": "Bild", "aspect_ratio": "4/3" }
 	}
 }

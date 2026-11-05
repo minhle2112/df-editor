@@ -180,31 +180,10 @@ final class DF_Inhalt_Client {
 		}
 	}
 
-	/**
-	 * Whether the request is the DF Panel screen (admin.php?page=df-panel)
-	 * and the user may open it.
-	 *
-	 * The agency enables client reordering in the DF Editor settings, which
-	 * grants `df_reorder_sections`; the panel and its REST routes enforce the
-	 * reorder-only limits on the server.
-	 *
-	 * @return bool
-	 */
-	public static function is_panel_request() {
-		global $pagenow;
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only screen routing.
-		$page = isset( $_GET['page'] ) ? sanitize_key( wp_unslash( $_GET['page'] ) ) : '';
-		return 'admin.php' === $pagenow && 'df-panel' === $page
-			&& ( current_user_can( 'df_reorder_sections' ) || current_user_can( 'df_edit_layout' ) );
-	}
-
 	/** Keep media uploads, autosaves and authenticated editor AJAX working. */
 	public static function guard_admin() {
 		if ( ! self::is_client() ) {
 			return;
-		}
-		if ( self::is_panel_request() ) {
-			return; // DF Panel: capability-gated, see is_panel_request().
 		}
 		if ( ! self::enabled() ) {
 			if ( ! wp_doing_ajax() ) {
@@ -245,12 +224,11 @@ final class DF_Inhalt_Client {
 	}
 
 	public static function body_class( $classes ) {
-		return self::clean_admin() && ! self::is_panel_request() ? $classes . ' df-inhalt-client-admin' : $classes;
+		return self::clean_admin() ? $classes . ' df-inhalt-client-admin' : $classes;
 	}
 
 	public static function enqueue_assets() {
-		// The DF Panel brings its own full-screen UI; no client chrome there.
-		if ( ! self::clean_admin() || self::is_panel_request() ) {
+		if ( ! self::clean_admin() ) {
 			return;
 		}
 		wp_enqueue_style( 'df-inhalt-client', DF_INHALT_PLUGIN_URL . 'admin/css/client.css', array(), DF_INHALT_VERSION );
@@ -261,7 +239,7 @@ final class DF_Inhalt_Client {
 	}
 
 	public static function render_header() {
-		if ( ! self::clean_admin() || self::is_panel_request() ) {
+		if ( ! self::clean_admin() ) {
 			return;
 		}
 		$screen = get_current_screen();

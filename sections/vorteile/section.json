@@ -12,6 +12,7 @@
 	},
 	"list": {
 		"key": "items",
+		"item_label": "Vorteil",
 		"min": 3,
 		"max": 6,
 		"default_count": 4,

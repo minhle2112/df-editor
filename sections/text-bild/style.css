@@ -14,3 +14,25 @@
 	.df-text-bild--image-right .df-text-bild--r-40-60 { grid-template-columns: 3fr 2fr; }
 	.df-text-bild--image-right .df-text-bild__media { order: 2; }
 }
+
+/* Small note under the buttons. */
+.df-text-bild__note { margin: .85rem 0 0; font-size: var(--wp--preset--font-size--small, .875rem); }
+
+/* Eyebrow as a pill with a dot (e.g. a rating line). */
+.df-text-bild .df-eyebrow--pill {
+	display: inline-flex;
+	align-items: center;
+	gap: .5em;
+	padding: .35em .9em;
+	border-radius: 999px;
+	background: color-mix(in srgb, var(--df-accent) 9%, transparent);
+	text-transform: none;
+	letter-spacing: 0;
+}
+.df-text-bild .df-eyebrow--pill::before {
+	content: "";
+	width: .45em;
+	height: .45em;
+	border-radius: 50%;
+	background: var(--df-divider, var(--df-accent));
+}

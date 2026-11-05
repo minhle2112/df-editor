@@ -57,7 +57,7 @@ function df_section( string $type, string $instance_id, array $options = array()
 }
 
 /**
- * Whether a post has a DF layout (during a DF Panel draft preview: a draft counts too).
+ * Whether a post has a DF layout.
  */
 function df_has_layout( ?int $post_id = null ): bool {
 	$post_id = $post_id ?? (int) get_the_ID();

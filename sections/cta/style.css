@@ -48,4 +48,6 @@
 	.df-cta--contact .df-cta__photo { grid-area: photo; width: 14rem; align-self: center; }
 	.df-cta--contact .df-cta__text { grid-area: text; align-self: end; }
 	.df-cta--contact .df-cta__actions { grid-area: actions; align-self: start; }
+	/* Photo switched off (optional image). */
+	.df-cta--contact .df-cta__grid:not(:has(.df-cta__photo)) { grid-template-columns: minmax(0, 1fr); grid-template-areas: "text" "actions"; }
 }

@@ -12,6 +12,9 @@ defined( 'ABSPATH' ) || exit;
  */
 class DF_CLI {
 
+	/** to-layout: alt text overrides of block images that the layout cannot keep (report). */
+	private array $dropped_alts = array();
+
 	/**
 	 * Validates the layout of one page or of all DF pages.
 	 *
@@ -165,7 +168,7 @@ class DF_CLI {
 			WP_CLI::warning( "Page #$post_id keeps page_key \"$existing_key\"; the layout says \"$file_key\". Field IDs will use \"$existing_key\"." );
 		}
 
-		// Publish path: previous live layout into the history, rev + 1, DF Panel draft discarded.
+		// Publish path: previous live layout into the history, rev + 1.
 		$published = DF_Layout_Store::publish(
 			(int) $post_id,
 			$layout,
@@ -176,9 +179,6 @@ class DF_CLI {
 		);
 		if ( ! $published['ok'] ) {
 			WP_CLI::error( 'Could not save the layout.' );
-		}
-		if ( $published['had_draft'] ) {
-			WP_CLI::warning( 'An unpublished DF Panel draft of this page was discarded.' );
 		}
 
 		switch ( $published['fallback'] ) {
@@ -563,16 +563,28 @@ class DF_CLI {
 	}
 
 	/**
-	 * Converts the JSON layout of a page into DF blocks (prototype, see docs/BLOCKS.md).
+	 * Converts the JSON layout of a page into DF blocks (see docs/BLOCKS.md).
 	 *
-	 * Every section becomes a df/<type> block in post_content with the same instance ID, so all
-	 * field IDs ({page_key}.{id}.*) and saved DF Inhalt texts stay the same. _df_layout is moved to
-	 * _df_layout_converted (backup), _df_page_key is kept.
+	 * Every section becomes a df/<type> block in post_content with the same instance ID.
+	 * Default (--content): block-content mode (v2) – the visible texts, buttons and images (saved
+	 * DF Inhalt values, else the layout content defaults) are written into the block ("fields")
+	 * and one child block per list item, so the page looks the same and is edited in the block
+	 * editor. --no-content: legacy mode (v1) – the blocks keep using the DF Inhalt field IDs
+	 * ({page_key}.{id}.*). _df_layout is moved to _df_layout_converted (backup), _df_page_key is kept.
+	 *
+	 * --upgrade converts the legacy (v1) df/* blocks of a block page into block-content mode
+	 * instead (the visible DF Inhalt texts move into the blocks; markup backup in _df_blocks_v1).
 	 *
 	 * ## OPTIONS
 	 *
 	 * <page>
 	 * : Page ID, slug or page key.
+	 *
+	 * [--[no-]content]
+	 * : Write the visible content into the blocks (block-content mode). Default: on.
+	 *
+	 * [--upgrade]
+	 * : Convert the legacy df/* blocks of a block page into block-content mode.
 	 *
 	 * [--dry-run]
 	 * : Print the block markup, change nothing.
@@ -584,12 +596,19 @@ class DF_CLI {
 	 *
 	 *     wp df to-blocks home --dry-run
 	 *     wp df to-blocks 42
+	 *     wp df to-blocks 42 --no-content
+	 *     wp df to-blocks gutenberg-test --upgrade
 	 *
 	 * @subcommand to-blocks
 	 */
 	public function to_blocks( array $args, array $assoc ): void {
 		$post_id = $this->resolve_block_post( $args[0] );
-		$layout  = DF_Layout_Store::get( $post_id );
+		if ( ! empty( $assoc['upgrade'] ) ) {
+			$this->upgrade_blocks( $post_id, ! empty( $assoc['dry-run'] ) );
+			return;
+		}
+		$with_content = (bool) \WP_CLI\Utils\get_flag_value( $assoc, 'content', true );
+		$layout       = DF_Layout_Store::get( $post_id );
 		if ( null === $layout ) {
 			WP_CLI::error( "Page #$post_id has no DF layout." );
 		}
@@ -619,7 +638,12 @@ class DF_CLI {
 				continue;
 			}
 			if ( ! empty( $inst['locked'] ) ) {
-				WP_CLI::warning( "Section $id: the DF Panel lock is not kept (blocks have no lock)." );
+				WP_CLI::warning( "Section $id: the locked flag is not kept (blocks have no lock)." );
+			}
+			if ( $with_content ) {
+				$visible  = DF_Blocks::content_from_entry( $inst, $def, (string) $layout['page_key'] );
+				$blocks[] = DF_Blocks::content_block( $type, DF_Blocks::attributes_from_entry( $inst, $def ), $visible['fields'], $visible['items'] );
+				continue;
 			}
 			$blocks[] = array(
 				'blockName'    => DF_Blocks::block_name( $type ),
@@ -661,11 +685,47 @@ class DF_CLI {
 		delete_post_meta( $post_id, DF_Blocks::META_BLOCKS_CONVERTED );
 		delete_post_meta( $post_id, DF_Layout_Store::META_LAYOUT );
 		delete_post_meta( $post_id, DF_Layout_Store::META_SAVED );
-		if ( DF_Layout_Store::has_draft( $post_id ) ) {
-			WP_CLI::warning( 'The DF Panel draft of this page was not converted (kept in _df_layout_draft).' );
-		}
 		DF_Layout_Store::purge_caches( $post_id );
-		WP_CLI::success( sprintf( 'Page #%d converted to %d DF block(s) (page_key %s, backup in %s).', $post_id, count( $blocks ), DF_Layout_Store::page_key( $post_id ), DF_Blocks::META_LAYOUT_CONVERTED ) );
+		WP_CLI::success( sprintf( 'Page #%d converted to %d DF block(s) (%s, page_key %s, backup in %s).', $post_id, count( $blocks ), $with_content ? 'block content' : 'legacy DF Inhalt mode', DF_Layout_Store::page_key( $post_id ), DF_Blocks::META_LAYOUT_CONVERTED ) );
+	}
+
+	/**
+	 * `wp df to-blocks <page> --upgrade`: legacy (v1) df/* blocks → block-content mode (v2).
+	 */
+	private function upgrade_blocks( int $post_id, bool $dry ): void {
+		if ( DF_Layout_Store::has_layout( $post_id ) ) {
+			WP_CLI::error( "Page #$post_id has a DF layout; convert it with `wp df to-blocks $post_id`." );
+		}
+		$content = (string) get_post_field( 'post_content', $post_id );
+		if ( ! DF_Blocks::content_has_df_blocks( $content ) ) {
+			WP_CLI::error( "Page #$post_id has no DF blocks." );
+		}
+		$key    = (string) get_post_meta( $post_id, DF_Layout_Store::META_KEY, true );
+		$blocks = parse_blocks( $content );
+		$count  = 0;
+		foreach ( $blocks as $i => $block ) {
+			$changed      = false;
+			$blocks[ $i ] = DF_Blocks::upgrade_block( $block, '' !== $key ? $key : 'df_unsaved_' . $post_id, $changed );
+			if ( $changed ) {
+				++$count;
+			}
+		}
+		if ( 0 === $count ) {
+			WP_CLI::success( "Page #$post_id has no legacy DF blocks. Nothing changed." );
+			return;
+		}
+		$markup = serialize_blocks( $blocks );
+		if ( $dry ) {
+			WP_CLI::line( $markup );
+			WP_CLI::success( sprintf( 'Dry run: %d block(s) would be upgraded. Nothing changed.', $count ) );
+			return;
+		}
+		$result = $this->update_content( $post_id, $markup );
+		if ( is_wp_error( $result ) ) {
+			WP_CLI::error( $result );
+		}
+		update_post_meta( $post_id, DF_Blocks::META_BLOCKS_V1, wp_slash( $content ) );
+		WP_CLI::success( sprintf( 'Page #%d: %d DF block(s) upgraded to block content (backup in %s).', $post_id, $count, DF_Blocks::META_BLOCKS_V1 ) );
 	}
 
 	/**
@@ -674,6 +734,10 @@ class DF_CLI {
 	 * Every df/<type> block becomes a layout section with the same instance ID; the layout is
 	 * validated and stored through the publish path (history, rev, plain-text fallback in
 	 * post_content). The block markup is kept in _df_blocks_converted.
+	 *
+	 * Blocks in block-content mode write their fields and items into the layout "content" (the
+	 * item count becomes options.count). Saved DF Inhalt values of those instances would override
+	 * that content, so they are removed (backup in _df_inhalt_values_backup).
 	 *
 	 * ## OPTIONS
 	 *
@@ -700,9 +764,15 @@ class DF_CLI {
 		$content = (string) get_post_field( 'post_content', $post_id );
 		$dry     = ! empty( $assoc['dry-run'] );
 
-		$sections = array();
-		$others   = array();
-		$this->collect_sections( parse_blocks( $content ), $sections, $others );
+		$sections           = array();
+		$others             = array();
+		$content_id         = array();
+		$this->dropped_alts = array();
+		$this->collect_sections( parse_blocks( $content ), $sections, $others, $content_id );
+		if ( $this->dropped_alts ) {
+			// Layout content stores images as attachment IDs: the media library alt text applies again.
+			WP_CLI::warning( 'Alt text overrides are not kept in a layout (the media library alt text is used): ' . implode( '; ', $this->dropped_alts ) );
+		}
 		if ( $others ) {
 			if ( empty( $assoc['allow-partial'] ) ) {
 				WP_CLI::error( 'The page contains other blocks (' . implode( ', ', array_unique( $others ) ) . '); they cannot be part of a layout. Use --allow-partial to drop them.' );
@@ -741,6 +811,9 @@ class DF_CLI {
 			if ( $is_new ) {
 				WP_CLI::log( "The page has no page key yet; \"$key\" (or a unique variant) would be assigned." );
 			}
+			if ( $content_id ) {
+				WP_CLI::log( sprintf( 'Block content of %d section(s) goes into the layout content; their saved DF Inhalt values would be removed (backup).', count( $content_id ) ) );
+			}
 			WP_CLI::success( sprintf( 'Dry run: %d section(s). Nothing changed.', count( $sections ) ) );
 			return;
 		}
@@ -764,13 +837,22 @@ class DF_CLI {
 			WP_CLI::error( 'Could not save the layout.' );
 		}
 		delete_post_meta( $post_id, DF_Blocks::META_LAYOUT_CONVERTED );
+		if ( $content_id ) {
+			// The block content is now the layout content: stale DF Inhalt values must not override it.
+			$removed = DF_Content::forget_values( array_map( static fn( $id ) => $key . '.' . $id . '.', $content_id ) );
+			if ( $removed ) {
+				update_post_meta( $post_id, DF_Blocks::META_INHALT_BACKUP, wp_slash( (string) wp_json_encode( $removed, JSON_UNESCAPED_UNICODE ) ) );
+				WP_CLI::log( sprintf( 'Removed %d saved DF Inhalt value(s) of converted block-content sections (backup in %s).', count( $removed ), DF_Blocks::META_INHALT_BACKUP ) );
+			}
+		}
 		WP_CLI::success( sprintf( 'Page #%d converted to a DF layout with %d section(s) (page_key %s, rev %d, fallback %s).', $post_id, count( $sections ), $key, $published['rev'], $published['fallback'] ) );
 	}
 
 	/**
-	 * Layout entries of the df/* blocks in a block tree; names of other non-empty blocks in $others.
+	 * Layout entries of the df/* blocks in a block tree; names of other non-empty blocks in $others;
+	 * instance IDs of blocks in block-content mode in $content_ids.
 	 */
-	private function collect_sections( array $blocks, array &$sections, array &$others ): void {
+	private function collect_sections( array $blocks, array &$sections, array &$others, array &$content_ids = array() ): void {
 		foreach ( $blocks as $block ) {
 			$name = $block['blockName'] ?? null;
 			$type = DF_Blocks::type_of( $name );
@@ -779,7 +861,13 @@ class DF_CLI {
 					$others[] = (string) $name;
 					continue;
 				}
-				$entry = DF_Blocks::entry_from_attributes( $type, (array) ( $block['attrs'] ?? array() ) );
+				$attrs = (array) ( $block['attrs'] ?? array() );
+				$items = DF_Blocks::is_content_mode( $attrs ) ? DF_Blocks::items_from_parsed( $block, $type ) : null;
+				$entry = DF_Blocks::entry_from_attributes( $type, $attrs, $items );
+				if ( null !== $items ) {
+					$entry['content'] = $this->layout_content( (array) DF_Registry::get( $type ), $entry['content'], (string) $entry['id'], $this->dropped_alts );
+					$content_ids[]    = $entry['id'];
+				}
 				if ( array() === $entry['content'] ) {
 					unset( $entry['content'] );
 				}
@@ -794,6 +882,38 @@ class DF_CLI {
 			}
 			$others[] = (string) $name;
 		}
+	}
+
+	/**
+	 * Block content → layout content: images {id, alt} become plain attachment IDs (the alt text
+	 * override exists only in blocks; each dropped override is collected in $dropped_alts and
+	 * reported by to-layout). Button targets ("_blank") and "no image" (-1) are kept.
+	 *
+	 * @param array    $def          Section definition.
+	 * @param array    $content      Block content (fields + items).
+	 * @param string   $id           Section instance ID (for the report).
+	 * @param string[] $dropped_alts Report lines, appended.
+	 */
+	private function layout_content( array $def, array $content, string $id = '', array &$dropped_alts = array() ): array {
+		$flat = static function ( array $values, array $fields, string $where ) use ( &$dropped_alts ): array {
+			foreach ( $values as $key => $value ) {
+				if ( 'image' === ( $fields[ $key ]['type'] ?? '' ) && is_array( $value ) ) {
+					$values[ $key ] = (int) ( $value['id'] ?? 0 );
+					if ( '' !== trim( (string) ( $value['alt'] ?? '' ) ) ) {
+						$dropped_alts[] = sprintf( '%s %s: "%s"', $where, $key, (string) $value['alt'] );
+					}
+				}
+			}
+			return $values;
+		};
+		$out = $flat( $content, (array) ( $def['fields'] ?? array() ), $id );
+		if ( DF_Blocks::has_list( $def ) ) {
+			$key = (string) $def['list']['key'];
+			foreach ( (array) ( $out[ $key ] ?? array() ) as $n => $item ) {
+				$out[ $key ][ $n ] = $flat( (array) $item, (array) ( $def['list']['fields'] ?? array() ), $id . ' ' . $key . '[' . ( (int) $n + 1 ) . ']' );
+			}
+		}
+		return $out;
 	}
 
 	/**

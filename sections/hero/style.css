@@ -5,12 +5,14 @@
 	align-items: center;
 }
 .df-hero__title { margin-bottom: .4em; }
+/* Optional second title line in the accent colour. */
+.df-hero__accent { display: block; color: var(--df-accent); }
 .df-hero__lead { max-width: 60ch; color: var(--df-fg); }
 .df-hero__lead p { margin: 0 0 .75em; }
 
-/* Heights */
-.df-hero--h-70 { min-height: 70vh; min-height: 70svh; }
-.df-hero--h-full { min-height: 100vh; min-height: 100svh; }
+/* Heights: the section padding counts into the screen height (70% / full incl. spacing). */
+.df-hero--h-70 { min-height: calc(70vh - var(--df-pad-top, 0px) - var(--df-pad-bottom, 0px)); min-height: calc(70svh - var(--df-pad-top, 0px) - var(--df-pad-bottom, 0px)); }
+.df-hero--h-full { min-height: calc(100vh - var(--df-pad-top, 0px) - var(--df-pad-bottom, 0px)); min-height: calc(100svh - var(--df-pad-top, 0px) - var(--df-pad-bottom, 0px)); }
 
 /* Split */
 @media (min-width: 900px) {
@@ -36,6 +38,11 @@
 	pointer-events: none;
 }
 .df-hero--overlay .df-hero__text { max-width: 44rem; }
+/* Overlay, centred: text column in the middle (wider, like the text-only variant). */
+.df-hero--overlay .df-hero--center .df-hero__text { max-width: 52rem; margin-inline: auto; text-align: center; }
+.df-hero--overlay .df-hero--center .df-hero__lead { margin-inline: auto; }
+.df-hero--overlay .df-hero--center .df-actions { justify-content: center; }
+.df-hero--overlay .df-hero--center .df-hero__bg::after { background: color-mix(in srgb, var(--df-bg) 84%, transparent); }
 
 /* Edit state: keep the overlay image clickable for DF Inhalt. */
 html.df-edit-active .df-hero--overlay .df-hero__bg { z-index: 0; }

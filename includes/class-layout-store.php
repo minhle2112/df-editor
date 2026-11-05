@@ -11,17 +11,12 @@ final class DF_Layout_Store {
 
 	public const META_LAYOUT  = '_df_layout';
 	public const META_KEY     = '_df_page_key';
-	public const META_DRAFT   = '_df_layout_draft';
 	public const META_HISTORY = '_df_layout_history';
-	public const META_LOCK    = '_df_layout_lock';
 	/** {saved_at (UTC ISO), user_id} of the current live layout (copied into history on the next publish). */
 	public const META_SAVED   = '_df_layout_saved';
 
 	/** History entries kept per page (newest first). */
 	public const HISTORY_MAX = 30;
-
-	/** Edit lock lifetime in seconds (refreshed by the panel / heartbeat). */
-	public const LOCK_TTL = 120;
 
 	/** Field ID regex of DF Inhalt. */
 	public const ID_REGEX = '/^[a-z0-9][a-z0-9._-]*$/';
@@ -49,7 +44,7 @@ final class DF_Layout_Store {
 	}
 
 	/**
-	 * Decodes a stored layout (live or draft) and fills format, page_key and rev.
+	 * Decodes a stored layout and fills format, page_key and rev.
 	 */
 	private static function read_meta_layout( int $post_id, string $meta_key ): ?array {
 		$raw = get_post_meta( $post_id, $meta_key, true );
@@ -131,11 +126,10 @@ final class DF_Layout_Store {
 	}
 
 	/**
-	 * Removes the live layout and the draft (history is kept for a later restore).
+	 * Removes the live layout (history is kept for a later restore).
 	 */
 	public static function delete( int $post_id ): void {
 		delete_post_meta( $post_id, self::META_LAYOUT );
-		delete_post_meta( $post_id, self::META_DRAFT );
 		delete_post_meta( $post_id, self::META_SAVED );
 	}
 
@@ -147,13 +141,13 @@ final class DF_Layout_Store {
 	}
 
 	/**
-	 * Publishes a layout: the previous live layout goes into the history, rev + 1, the draft is
-	 * deleted, the plain-text fallback is regenerated and page caches are purged.
+	 * Publishes a layout: the previous live layout goes into the history, rev + 1, the
+	 * plain-text fallback is regenerated and page caches are purged.
 	 *
-	 * Used by the DF Panel, the layout metabox and `wp df import`.
+	 * Used by the layout metabox, `wp df import` and the block converter.
 	 *
 	 * @param array $args fallback (bool, default true), overwrite_content (bool), user_id (int).
-	 * @return array{ok: bool, rev: int, fallback: string, had_draft: bool}
+	 * @return array{ok: bool, rev: int, fallback: string}
 	 */
 	public static function publish( int $post_id, array $layout, array $args = array() ): array {
 		$args = array_merge(
@@ -165,16 +159,14 @@ final class DF_Layout_Store {
 			$args
 		);
 
-		$previous  = self::get( $post_id );
-		$rev       = ( null === $previous ? 0 : (int) $previous['rev'] ) + 1;
-		$had_draft = self::has_draft( $post_id );
-		$json      = self::encode( $post_id, $layout, $rev );
+		$previous = self::get( $post_id );
+		$rev      = ( null === $previous ? 0 : (int) $previous['rev'] ) + 1;
+		$json     = self::encode( $post_id, $layout, $rev );
 		if ( false === $json ) {
 			return array(
-				'ok'        => false,
-				'rev'       => $rev - 1,
-				'fallback'  => 'none',
-				'had_draft' => $had_draft,
+				'ok'       => false,
+				'rev'      => $rev - 1,
+				'fallback' => 'none',
 			);
 		}
 
@@ -201,7 +193,6 @@ final class DF_Layout_Store {
 				'user_id'  => (int) $args['user_id'],
 			)
 		);
-		self::delete_draft( $post_id );
 
 		$fallback = 'none';
 		if ( $args['fallback'] ) {
@@ -211,7 +202,7 @@ final class DF_Layout_Store {
 		self::purge_caches( $post_id );
 
 		/**
-		 * Fires after a DF layout was published (panel, metabox, CLI import).
+		 * Fires after a DF layout was published (metabox, CLI import, converter).
 		 *
 		 * @param int   $post_id Post ID.
 		 * @param array $layout  The new live layout.
@@ -220,10 +211,9 @@ final class DF_Layout_Store {
 		do_action( 'df_layout_published', $post_id, self::get( $post_id ), $rev );
 
 		return array(
-			'ok'        => true,
-			'rev'       => $rev,
-			'fallback'  => $fallback,
-			'had_draft' => $had_draft,
+			'ok'       => true,
+			'rev'      => $rev,
+			'fallback' => $fallback,
 		);
 	}
 
@@ -255,35 +245,6 @@ final class DF_Layout_Store {
 		if ( class_exists( 'Cache_Enabler' ) ) {
 			do_action( 'cache_enabler_clear_page_cache_by_post', $post_id ); // Cache Enabler.
 		}
-	}
-
-	/* ---------------------------------------------------------------- Draft */
-
-	/**
-	 * Draft layout (format, page_key and rev filled; rev = live rev the draft is based on), or null.
-	 */
-	public static function get_draft( int $post_id ): ?array {
-		return self::read_meta_layout( $post_id, self::META_DRAFT );
-	}
-
-	public static function has_draft( int $post_id ): bool {
-		return '' !== (string) get_post_meta( $post_id, self::META_DRAFT, true );
-	}
-
-	/**
-	 * Stores the draft. Its "rev" is the current live rev (the base it was made from).
-	 */
-	public static function set_draft( int $post_id, array $layout ): bool {
-		$json = self::encode( $post_id, $layout, self::rev( $post_id ) );
-		if ( false === $json ) {
-			return false;
-		}
-		update_post_meta( $post_id, self::META_DRAFT, wp_slash( $json ) );
-		return true;
-	}
-
-	public static function delete_draft( int $post_id ): void {
-		delete_post_meta( $post_id, self::META_DRAFT );
 	}
 
 	/* -------------------------------------------------------------- History */
@@ -320,71 +281,6 @@ final class DF_Layout_Store {
 		$max     = max( 1, (int) apply_filters( 'df_layout_history_max', self::HISTORY_MAX ) );
 		$history = array_slice( $history, 0, $max );
 		update_post_meta( $post_id, self::META_HISTORY, wp_slash( $history ) );
-	}
-
-	/* ----------------------------------------------------------------- Lock */
-
-	/**
-	 * The valid (not expired) lock {user_id, token, expires}, or null.
-	 * token identifies one panel window ('' for callers without a panel, e.g. CLI).
-	 */
-	public static function get_lock( int $post_id ): ?array {
-		$lock = get_post_meta( $post_id, self::META_LOCK, true );
-		if ( ! is_array( $lock ) || empty( $lock['user_id'] ) || (int) ( $lock['expires'] ?? 0 ) < time() ) {
-			return null;
-		}
-		return array(
-			'user_id' => (int) $lock['user_id'],
-			'token'   => (string) ( $lock['token'] ?? '' ),
-			'expires' => (int) $lock['expires'],
-		);
-	}
-
-	/**
-	 * The valid lock when another user than $user_id holds it, or the same user in another panel
-	 * window (both tokens set and different), else null.
-	 */
-	public static function locked_by_other( int $post_id, int $user_id, string $token = '' ): ?array {
-		$lock = self::get_lock( $post_id );
-		if ( null === $lock ) {
-			return null;
-		}
-		if ( $lock['user_id'] !== $user_id ) {
-			return $lock;
-		}
-		return ( '' !== $token && '' !== $lock['token'] && ! hash_equals( $lock['token'], $token ) ) ? $lock : null;
-	}
-
-	/**
-	 * Takes or refreshes the lock for a user (callers check locked_by_other() first).
-	 */
-	public static function set_lock( int $post_id, int $user_id, string $token = '' ): array {
-		$lock = array(
-			'user_id' => $user_id,
-			'token'   => $token,
-			'expires' => time() + self::LOCK_TTL,
-		);
-		update_post_meta( $post_id, self::META_LOCK, $lock );
-		return $lock;
-	}
-
-	/**
-	 * Releases the lock (only when held by $user_id and, with a token, by that panel window;
-	 * any lock with $user_id = 0).
-	 */
-	public static function release_lock( int $post_id, int $user_id = 0, string $token = '' ): void {
-		$lock = get_post_meta( $post_id, self::META_LOCK, true );
-		if ( 0 === $user_id ) {
-			delete_post_meta( $post_id, self::META_LOCK );
-			return;
-		}
-		if ( ! is_array( $lock ) || (int) ( $lock['user_id'] ?? 0 ) !== $user_id ) {
-			return;
-		}
-		$held = (string) ( $lock['token'] ?? '' );
-		if ( '' === $token || '' === $held || hash_equals( $held, $token ) ) {
-			delete_post_meta( $post_id, self::META_LOCK );
-		}
 	}
 
 	/**

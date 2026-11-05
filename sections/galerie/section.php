@@ -2,7 +2,8 @@
 /**
  * Section: Galerie
  *
- * Grid (fixed ratio or original) or masonry (CSS columns, original ratio).
+ * Grid (fixed ratio or original), masonry (CSS columns, original ratio), mosaik (first image 2x2,
+ * 16:9 tiles) or slider (CSS scroll-snap track, prev/next buttons from view.js).
  * Lightbox: view.js builds one <dialog>; it never opens while DF Inhalt is active.
  *
  * @df-section-version 1
@@ -11,21 +12,29 @@
  */
 
 defined( 'ABSPATH' ) || exit;
+require_once DF_EDITOR_DIR . 'sections/_shared/icons.php'; // df_icon() (slider buttons), also in the editor preview.
 
 $h        = 'h3' === $s->opt( 'heading_level' ) ? 'h3' : 'h2';
 $can_edit = $s->can_edit();
-$masonry  = 'masonry' === $s->variant();
+$variant  = $s->variant();
+$masonry  = 'masonry' === $variant;
+$mosaik   = 'mosaik' === $variant;
+$slider   = 'slider' === $variant;
 $ratios   = array(
 	'1-1'  => '1/1',
 	'4-3'  => '4/3',
 	'16-9' => '16/9',
 );
-$ratio    = $masonry ? '' : ( $ratios[ $s->opt( 'ratio' ) ] ?? '' );
+$ratio    = $masonry ? '' : ( $mosaik ? '16/9' : ( $ratios[ $s->opt( 'ratio' ) ] ?? '' ) );
+if ( $slider && '' === $ratio ) {
+	$ratio = '4/3'; // A slider needs equal tile heights.
+}
 $lightbox = 'yes' === $s->opt( 'lightbox' );
-if ( $lightbox && class_exists( 'DF_Assets' ) ) {
+if ( ( $lightbox || $slider ) && class_exists( 'DF_Assets' ) ) {
 	DF_Assets::enqueue_section_script( 'galerie' ); // view.js only when this instance needs it.
 }
 $captions = 'yes' === $s->opt( 'captions' );
+$overlay  = $captions && 'overlay' === $s->opt( 'caption_style' );
 
 $eyebrow = trim( (string) $s->value( 'eyebrow' ) );
 $title   = trim( (string) $s->value( 'title' ) );
@@ -35,6 +44,10 @@ $list_classes = array( 'df-galerie__list', 'df-galerie--cols-' . $s->opt( 'colum
 if ( '' === $ratio ) {
 	$list_classes[] = 'df-galerie--natural';
 }
+if ( $overlay ) {
+	$list_classes[] = 'df-galerie--caption-overlay';
+}
+$track_id = $s->id() . '-track';
 
 $i18n = array(
 	'dialog' => __( 'Image viewer', 'df-editor' ),
@@ -59,21 +72,24 @@ $i18n = array(
 	</div>
 <?php endif; ?>
 
-<ul class="<?php echo esc_attr( implode( ' ', $list_classes ) ); ?>" role="list"<?php echo $lightbox ? ' data-df-lightbox="' . esc_attr( wp_json_encode( $i18n ) ) . '"' : ''; ?>>
+<?php if ( $slider ) : ?>
+<div class="df-galerie__wrap" data-df-slider role="group" aria-label="<?php esc_attr_e( 'Gallery', 'df-editor' ); ?>">
+<?php endif; ?>
+<ul<?php echo $slider ? ' id="' . esc_attr( $track_id ) . '" data-df-slides tabindex="0"' : ''; ?> class="<?php echo esc_attr( implode( ' ', $list_classes ) ); ?>" role="list"<?php echo $lightbox ? ' data-df-lightbox="' . esc_attr( wp_json_encode( $i18n ) ) . '"' : ''; ?>>
 	<?php
 	foreach ( $s->items() as $item ) :
 		$caption = trim( (string) $item->value( 'caption' ) );
 		$img_id  = (int) $item->value( 'image' );
-		$full    = $img_id > 0 ? (string) wp_get_attachment_image_url( $img_id, 'full' ) : '';
+		$full    = $img_id > 0 && wp_attachment_is_image( $img_id ) ? (string) wp_get_attachment_image_url( $img_id, 'full' ) : '';
 		?>
-		<li class="df-galerie__item">
+		<li class="df-galerie__item"<?php $item->attrs(); ?>>
 			<figure class="df-galerie__figure">
 				<div class="df-galerie__media<?php echo '' !== $ratio ? ' df-frame' : ''; ?>"<?php echo '' !== $ratio ? ' style="--df-ratio: ' . esc_attr( $ratio ) . '"' : ''; ?>>
 					<?php
 					$item->image(
 						'image',
 						array(
-							'size'         => $masonry || '' === $ratio ? 'large' : 'medium_large',
+							'size'         => $masonry || '' === $ratio || ( $mosaik && 1 === $item->index() ) ? 'large' : 'medium_large',
 							'loading'      => 'lazy',
 							'aspect_ratio' => $ratio,
 							'object_fit'   => '' !== $ratio ? 'cover' : '',
@@ -97,9 +113,24 @@ $i18n = array(
 					<?php endif; ?>
 				</div>
 				<?php if ( $captions && ( '' !== $caption || $can_edit ) ) : ?>
-					<figcaption class="df-galerie__caption df-muted"><?php $item->text( 'caption' ); ?></figcaption>
+					<figcaption class="df-galerie__caption<?php echo $overlay ? ' df-galerie__caption--overlay' : ' df-muted'; ?>"><?php $item->text( 'caption' ); ?></figcaption>
 				<?php endif; ?>
 			</figure>
 		</li>
 	<?php endforeach; ?>
 </ul>
+<?php if ( $slider ) : ?>
+	<?php if ( $s->count() > 1 ) : ?>
+		<div class="df-galerie__controls" hidden>
+			<button type="button" class="df-galerie__nav" aria-controls="<?php echo esc_attr( $track_id ); ?>" data-df-dir="-1">
+				<?php df_icon( 'arrow-left' ); ?>
+				<span class="df-sr-only"><?php esc_html_e( 'Previous images', 'df-editor' ); ?></span>
+			</button>
+			<button type="button" class="df-galerie__nav" aria-controls="<?php echo esc_attr( $track_id ); ?>" data-df-dir="1">
+				<?php df_icon( 'arrow-right' ); ?>
+				<span class="df-sr-only"><?php esc_html_e( 'Next images', 'df-editor' ); ?></span>
+			</button>
+		</div>
+	<?php endif; ?>
+</div>
+<?php endif; ?>

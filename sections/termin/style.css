@@ -1,0 +1,125 @@
+/* Section: Termin — colours only via --df-* variables, sizes via theme tokens. */
+.df-termin {
+	--df-termin-card: var(--df-bg);
+}
+.df-termin.df-scheme-hell-alt { --df-termin-card: var(--df-surface); }
+
+.df-termin__title { margin-bottom: 0; }
+.df-termin__date {
+	margin: var(--wp--preset--spacing--30, .75rem) 0 0;
+	font-weight: 600;
+	color: var(--df-accent);
+}
+.df-termin__lead { margin-top: var(--wp--preset--spacing--40, 1.25rem); }
+.df-termin__lead p { margin: 0 0 .75em; }
+.df-termin__note {
+	margin: var(--wp--preset--spacing--30, .75rem) 0 0;
+	font-size: var(--wp--preset--font-size--small, .875rem);
+}
+
+/* ---------- Variant: feature (text + image) ---------- */
+.df-termin__grid {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr);
+	gap: var(--wp--preset--spacing--60, clamp(2rem, 5vw, 3.5rem));
+	align-items: center;
+}
+.df-termin__text,
+.df-termin__media { min-width: 0; }
+.df-termin__media { margin: 0; }
+.df-termin__caption {
+	margin-top: var(--wp--preset--spacing--30, .875rem);
+	font-size: var(--wp--preset--font-size--small, .875rem);
+	text-align: center;
+}
+@media (min-width: 900px) {
+	.df-termin__grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr); gap: var(--wp--preset--spacing--70, clamp(2.5rem, 6vw, 5.5rem)); }
+	.df-termin--img-left .df-termin__media { order: -1; }
+	.df-termin--img-left { grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); }
+}
+@media (max-width: 599px) {
+	.df-termin__grid .df-actions .df-btn { width: 100%; justify-content: center; }
+}
+
+/* ---------- Key facts (pills) ---------- */
+.df-termin__facts {
+	display: flex;
+	flex-wrap: wrap;
+	gap: .625rem;
+	margin: var(--wp--preset--spacing--40, 1.25rem) 0 0;
+	padding: 0;
+	list-style: none;
+}
+.df-termin__fact {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	padding: .625rem 1.125rem;
+	border: 1px solid var(--df-border);
+	border-radius: 999px;
+	background: var(--df-termin-card);
+	font-size: var(--wp--preset--font-size--small, .875rem);
+	font-weight: 600;
+	color: var(--df-fg);
+	text-align: center;
+}
+
+/* ---------- Variant: card ---------- */
+.df-termin__card {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr);
+	gap: var(--wp--preset--spacing--50, clamp(1.375rem, 3vw, 2.5rem));
+	align-items: center;
+	max-width: 65rem;
+	margin-inline: auto;
+	padding: var(--wp--preset--spacing--50, clamp(1.75rem, 3.4vw, 2.75rem));
+	border: 1px solid var(--df-border);
+	border-radius: var(--df-radius);
+	background: var(--df-termin-card);
+	color: var(--df-fg);
+}
+.df-termin__body { min-width: 0; }
+.df-termin__card .df-termin__title { font-size: var(--wp--preset--font-size--x-large, clamp(1.6rem, 3vw, 2.5rem)); }
+.df-termin__card .df-termin__lead { max-width: 62ch; color: var(--df-muted); }
+.df-termin__marker { display: flex; }
+.df-termin__icon,
+.df-termin__thumb {
+	width: 4.5rem;
+	height: 4.5rem;
+	border-radius: var(--df-radius);
+}
+.df-termin__icon {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	background: color-mix(in srgb, var(--df-accent) 12%, transparent);
+	color: var(--df-accent);
+}
+.df-termin__icon .df-icon { width: 1.75rem; height: 1.75rem; }
+.df-termin__links { display: flex; flex-wrap: wrap; gap: .5rem 1.5rem; margin-top: var(--wp--preset--spacing--30, .875rem); }
+.df-termin__more {
+	display: flex;
+	align-items: center;
+	gap: .4em;
+	margin: 0;
+	color: var(--df-accent);
+	font-weight: 600;
+}
+.df-termin__link { color: inherit; text-decoration: none; }
+.df-termin__link:hover { text-decoration: underline; text-underline-offset: .2em; }
+.df-termin__arrow { width: 1em; height: 1em; flex: none; transition: transform .2s ease; }
+.df-termin__more:hover .df-termin__arrow { transform: translateX(3px); }
+.df-termin__card > .df-termin__facts { margin: 0; }
+
+@media (min-width: 600px) {
+	.df-termin__card--marker { grid-template-columns: auto minmax(0, 1fr); }
+	.df-termin__card > .df-termin__facts { grid-column: 1 / -1; }
+	.df-termin__icon,
+	.df-termin__thumb { width: 6rem; height: 6rem; }
+}
+@media (min-width: 1000px) {
+	.df-termin__card { grid-template-columns: minmax(0, 1fr) auto; }
+	.df-termin__card--marker { grid-template-columns: auto minmax(0, 1fr) auto; }
+	.df-termin__card > .df-termin__facts { grid-column: auto; flex-direction: column; }
+	.df-termin__card .df-termin__fact { min-width: 9.5rem; }
+}

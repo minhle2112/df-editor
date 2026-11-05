@@ -43,14 +43,14 @@ require_once DF_EDITOR_DIR . 'includes/class-fallback.php';
 require_once DF_EDITOR_DIR . 'includes/class-design.php';
 require_once DF_EDITOR_DIR . 'includes/class-customizer.php';
 require_once DF_EDITOR_DIR . 'includes/class-settings.php';
-require_once DF_EDITOR_DIR . 'includes/class-capabilities.php';
-require_once DF_EDITOR_DIR . 'includes/class-panel-api.php';
+require_once DF_EDITOR_DIR . 'includes/class-upgrade.php';
+require_once DF_EDITOR_DIR . 'includes/class-section-schema.php';
 require_once DF_EDITOR_DIR . 'includes/class-blocks.php';
 require_once DF_EDITOR_DIR . 'includes/class-updater.php';
 require_once DF_EDITOR_DIR . 'includes/helpers.php';
 
-// Feature modules (custom post types, form integration, DF Panel app): every file, sorted, if present.
-foreach ( array( 'cpt', 'forms', 'panel' ) as $df_editor_module_dir ) {
+// Feature modules (custom post types, form integration): every file, sorted, if present.
+foreach ( array( 'cpt', 'forms' ) as $df_editor_module_dir ) {
 	$df_editor_module_files = glob( DF_EDITOR_DIR . 'includes/' . $df_editor_module_dir . '/*.php' );
 	if ( $df_editor_module_files ) {
 		sort( $df_editor_module_files, SORT_STRING );
@@ -73,12 +73,11 @@ if ( defined( 'WP_CLI' ) && WP_CLI ) {
 }
 
 register_activation_hook( __FILE__, array( 'DF_Setup', 'activate' ) );
-register_activation_hook( __FILE__, array( 'DF_Capabilities', 'activate' ) );
+register_activation_hook( __FILE__, array( 'DF_Upgrade', 'activate' ) );
 
 DF_Layout_Store::init();
-DF_Capabilities::init();
+DF_Upgrade::init();
 DF_Renderer::init();
-DF_Panel_API::init();
 DF_Blocks::init();
 DF_Assets::init();
 DF_Setup::init();

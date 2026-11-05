@@ -7,18 +7,64 @@ Common layout options for every section: `scheme`, `spacing`, `width`, `hidden`,
 
 | Type | Label | Version | Variants | List |
 |---|---|---|---|---|
+| [`beitraege`](#beitraege) | Beiträge | 1 | grid | yes |
 | [`cta`](#cta) | Call to Action | 1 | centered, split, contact |  |
-| [`faq`](#faq) | FAQ / Akkordeon | 1 | one-col, two-col | yes |
+| [`faq`](#faq) | FAQ / Akkordeon | 1 | one-col, two-col, split | yes |
 | [`formular`](#formular) | Formular | 1 | full, with-contact |  |
-| [`galerie`](#galerie) | Galerie | 1 | grid, masonry | yes |
+| [`galerie`](#galerie) | Galerie | 1 | grid, masonry, mosaik, slider | yes |
 | [`hero`](#hero) | Hero | 1 | split, overlay, text |  |
+| [`kacheln`](#kacheln) | Kacheln | 1 | grid, split | yes |
 | [`kundenstimmen`](#kundenstimmen) | Kundenstimmen | 1 | grid, single, slider | yes |
 | [`leistungen`](#leistungen) | Leistungen (Karten) | 1 | cards-icon, cards-image, cards-border | yes |
+| [`newsletter`](#newsletter) | Newsletter | 1 | centered, split |  |
 | [`seiteninhalt`](#seiteninhalt) | Seiteninhalt | 1 | narrow, wide |  |
 | [`team`](#team) | Team | 1 | grid | yes |
+| [`termin`](#termin) | Termin | 1 | feature, card | yes |
 | [`text-bild`](#text-bild) | Text & Bild | 1 | image-left, image-right |  |
 | [`textblock`](#textblock) | Textblock | 1 | narrow, wide |  |
 | [`vorteile`](#vorteile) | Vorteile (USP-Leiste) | 1 | row, grid | yes |
+
+## beitraege
+
+**Beiträge** · version 1 · source `plugin`
+
+### Variants
+
+| Value | Label |
+|---|---|
+| `grid` (default) | Raster |
+
+### Options
+
+| Option | Label | Values | Default | Variants |
+|---|---|---|---|---|
+| `source` | Quelle | `manual`, `posts` | `manual` |  |
+| `category` | Kategorie (Slug, nur Quelle Beiträge) |  | `` |  |
+| `columns` | Spalten | `2`, `3` | `3` |  |
+| `show_meta` | Meta anzeigen | `yes`, `no` | `yes` |  |
+| `heading_level` | Überschrift-Ebene | `h2`, `h3` | `h2` |  |
+| `count` | Number of items | 1–12 | `3` | |
+
+### Fields
+
+| Field ID | Type | Label | Default | Extra |
+|---|---|---|---|---|
+| `eyebrow` | text | Dachzeile | Blog | max 60 |
+| `title` | text | Überschrift | Aktuelles | max 100 |
+| `intro` | richtext | Einleitung |  | max 600 |
+| `more` | button | Link oben rechts | {"text":"Alle Beiträge","url":"/blog/"} | max 40 |
+| `cta` | button | Button unten | {"text":"","url":""} | max 40 |
+
+### List `items` (1–12 items, default 3)
+
+| Field ID | Type | Label | Default | Extra |
+|---|---|---|---|---|
+| `items.{n}.image` | image | Beitragsbild | (placeholder) | ratio 16/10 |
+| `items.{n}.category` | text | Kategorie | Kategorie | max 30 |
+| `items.{n}.meta` | text | Meta (Lesezeit · Datum) |  | max 40 |
+| `items.{n}.title` | text | Titel | Beitragstitel {n} | max 100 |
+| `items.{n}.text` | richtext | Anreißer | <p>Ein bis zwei Sätze zum Beitrag.</p> | max 300 |
+| `items.{n}.link` | button | Link | {"text":"Weiterlesen","url":"#"} | max 30 |
 
 ## cta
 
@@ -62,11 +108,15 @@ Common layout options for every section: `scheme`, `spacing`, `width`, `hidden`,
 |---|---|
 | `one-col` (default) | Eine Spalte |
 | `two-col` | Zwei Spalten |
+| `split` | Kopf links |
 
 ### Options
 
 | Option | Label | Values | Default | Variants |
 |---|---|---|---|---|
+| `style` | Stil | `lines`, `cards` | `lines` |  |
+| `head_align` | Kopf-Ausrichtung | `left`, `center` | `left` | one-col, two-col |
+| `divider` | Trennlinie unter dem Kopf | `no`, `yes` | `no` |  |
 | `open_first` | Erste Frage geöffnet | `yes`, `no` | `no` |  |
 | `single_open` | Nur eine Frage gleichzeitig offen | `yes`, `no` | `no` |  |
 | `schema` | FAQPage-Schema ausgeben | `yes`, `no` | `no` |  |
@@ -80,6 +130,11 @@ Common layout options for every section: `scheme`, `spacing`, `width`, `hidden`,
 | `eyebrow` | text | Dachzeile | FAQ | max 60 |
 | `title` | text | Überschrift | Häufige Fragen | max 100 |
 | `intro` | richtext | Einleitung |  | max 600 |
+| `more` | richtext | Fußzeile unter den Fragen |  | max 300 |
+| `contact_title` | text | Kontaktkarte: Titel |  | max 80 |
+| `contact_text` | richtext | Kontaktkarte: Text |  | max 300 |
+| `contact_cta` | button | Kontaktkarte: Button | {"text":"","url":""} | max 40 |
+| `contact_image` | image | Kontaktkarte: Bild | (placeholder) | ratio 1/1 |
 
 ### List `items` (1–12 items, default 5)
 
@@ -126,15 +181,18 @@ Common layout options for every section: `scheme`, `spacing`, `width`, `hidden`,
 |---|---|
 | `grid` (default) | Raster |
 | `masonry` | Masonry |
+| `mosaik` | Mosaik |
+| `slider` | Slider |
 
 ### Options
 
 | Option | Label | Values | Default | Variants |
 |---|---|---|---|---|
 | `columns` | Spalten | `2`, `3`, `4`, `5` | `3` |  |
-| `ratio` | Bildformat (Raster) | `1-1`, `4-3`, `16-9`, `original` | `4-3` | grid |
+| `ratio` | Bildformat (Raster) | `1-1`, `4-3`, `16-9`, `original` | `4-3` | grid, slider |
 | `lightbox` | Lightbox | `yes`, `no` | `yes` |  |
 | `captions` | Bildunterschriften anzeigen | `yes`, `no` | `no` |  |
+| `caption_style` | Bildunterschrift-Stil | `below`, `overlay` | `below` |  |
 | `heading_level` | Überschrift-Ebene | `h2`, `h3` | `h2` |  |
 | `count` | Number of items | 1–24 | `6` | |
 
@@ -170,6 +228,7 @@ Common layout options for every section: `scheme`, `spacing`, `width`, `hidden`,
 | Option | Label | Values | Default | Variants |
 |---|---|---|---|---|
 | `image_side` | Bildposition | `left`, `right` | `right` | split |
+| `align` | Ausrichtung | `left`, `center` | `left` | overlay |
 | `heading_level` | Überschrift-Ebene | `h1`, `h2` | `h1` |  |
 | `height` | Höhe | `auto`, `70`, `full` | `auto` |  |
 | `buttons` | Anzahl Buttons | `0`, `1`, `2` | `1` |  |
@@ -180,10 +239,57 @@ Common layout options for every section: `scheme`, `spacing`, `width`, `hidden`,
 |---|---|---|---|---|
 | `eyebrow` | text | Dachzeile | Willkommen | max 60 |
 | `title` | text | Überschrift | Überschrift | max 80 |
+| `title_accent` | text | Überschrift Akzentzeile |  | max 80 |
 | `text` | richtext | Text | <p>Kurzer Einleitungstext, der in zwei Sätzen erklärt, was Sie anbieten.</p> | max 400 |
 | `cta1` | button | Button 1 | {"text":"Kontakt","url":"/kontakt/"} | max 40 |
 | `cta2` | button | Button 2 | {"text":"Mehr erfahren","url":"#"} | max 40 |
 | `image` | image | Bild | (placeholder) | ratio 4/3 |
+
+## kacheln
+
+**Kacheln** · version 1 · source `plugin`
+
+### Variants
+
+| Value | Label |
+|---|---|
+| `grid` (default) | Raster |
+| `split` | Text links + Kacheln rechts |
+
+### Options
+
+| Option | Label | Values | Default | Variants |
+|---|---|---|---|---|
+| `columns` | Spalten | `2`, `3`, `4`, `5` | `3` |  |
+| `card_style` | Kartenstil | `border`, `tinted`, `plain` | `border` |  |
+| `marker` | Markierung | `none`, `icon`, `number`, `arrow` | `none` |  |
+| `card_link` | Ganze Karte verlinkt | `yes`, `no` | `no` |  |
+| `head_align` | Kopf-Ausrichtung | `left`, `center` | `left` | grid |
+| `divider` | Linie unter der Überschrift | `yes`, `no` | `no` |  |
+| `highlight_first` | Erste Karte hervorheben | `yes`, `no` | `no` |  |
+| `heading_level` | Überschrift-Ebene | `h2`, `h3` | `h2` |  |
+| `count` | Number of items | 1–12 | `3` | |
+
+### Fields
+
+| Field ID | Type | Label | Default | Extra |
+|---|---|---|---|---|
+| `eyebrow` | text | Dachzeile |  | max 60 |
+| `title` | text | Überschrift | Überschrift | max 100 |
+| `title_accent` | text | Überschrift Akzentzeile |  | max 80 |
+| `intro` | richtext | Einleitung |  | max 600 |
+| `text` | richtext | Text |  | max 1200 |
+| `cta` | button | Button | {"text":"","url":""} | max 40 |
+
+### List `items` (1–12 items, default 3)
+
+| Field ID | Type | Label | Default | Extra |
+|---|---|---|---|---|
+| `items.{n}.kicker` | text | Kicker |  | max 40 |
+| `items.{n}.title` | text | Titel | Kachel {n} | max 60 |
+| `items.{n}.text` | richtext | Text | <p>Ein bis zwei Sätze zu diesem Punkt.</p> | max 400 |
+| `items.{n}.link` | button | Link | {"text":"","url":""} | max 40 |
+| `items.{n}.icon` | setting | Icon |  |  |
 
 ## kundenstimmen
 
@@ -203,6 +309,8 @@ Common layout options for every section: `scheme`, `spacing`, `width`, `hidden`,
 |---|---|---|---|---|
 | `source` | Quelle | `manual`, `cpt` | `manual` |  |
 | `photos` | Fotos anzeigen | `yes`, `no` | `yes` |  |
+| `head_style` | Kopf-Stil | `default`, `compact` | `default` |  |
+| `card_style` | Kartenstil | `tinted`, `border` | `tinted` |  |
 | `heading_level` | Überschrift-Ebene | `h2`, `h3` | `h2` |  |
 | `count` | Number of items | 1–9 | `3` | |
 
@@ -212,6 +320,9 @@ Common layout options for every section: `scheme`, `spacing`, `width`, `hidden`,
 |---|---|---|---|---|
 | `eyebrow` | text | Dachzeile | Kundenstimmen | max 60 |
 | `title` | text | Überschrift | Das sagen unsere Kunden | max 100 |
+| `intro` | richtext | Einleitung |  | max 400 |
+| `disclosure_title` | text | Aufklappbereich: Titel |  | max 100 |
+| `disclosure_text` | richtext | Aufklappbereich: Text |  | max 800 |
 
 ### List `items` (1–9 items, default 3)
 
@@ -220,6 +331,8 @@ Common layout options for every section: `scheme`, `spacing`, `width`, `hidden`,
 | `items.{n}.quote` | richtext | Zitat | <p>Schnell, sauber und freundlich – wir sind rundum zufrieden und empfehlen den Betrieb gerne weiter.</p> | max 400 |
 | `items.{n}.name` | text | Name | Kundin {n} | max 60 |
 | `items.{n}.company` | text | Firma / Ort | Köln | max 80 |
+| `items.{n}.source` | text | Quelle (Badge) |  | max 40 |
+| `items.{n}.link` | button | Link | {"text":"","url":""} | max 40 |
 | `items.{n}.image` | image | Foto | (placeholder) | ratio 1/1 |
 | `items.{n}.rating` | setting | Sterne 0–5 (nur Agentur, Layout-JSON) | 0 |  |
 
@@ -261,6 +374,42 @@ Common layout options for every section: `scheme`, `spacing`, `width`, `hidden`,
 | `items.{n}.image` | image | Bild | (placeholder) | ratio 4/3 |
 | `items.{n}.link` | button | Link | {"text":"Mehr erfahren","url":"#"} | max 40 |
 | `items.{n}.icon` | setting | Icon (nur Agentur, Layout-JSON) |  |  |
+
+## newsletter
+
+**Newsletter** · version 1 · source `plugin`
+
+### Variants
+
+| Value | Label |
+|---|---|
+| `centered` (default) | Zentriert |
+| `split` | Text + Formular nebeneinander |
+
+### Options
+
+| Option | Label | Values | Default | Variants |
+|---|---|---|---|---|
+| `provider` | Anbindung | `none`, `action`, `shortcode` | `none` |  |
+| `action_url` | Formular-Action-URL (Brevo, CleverReach, Mailchimp …) |  | `` |  |
+| `shortcode` | Shortcode (z. B. Fluent Forms / CF7) |  | `` |  |
+| `show_name` | Vorname abfragen | `yes`, `no` | `yes` |  |
+| `heading_level` | Überschrift-Ebene | `h2`, `h3` | `h2` |  |
+
+### Fields
+
+| Field ID | Type | Label | Default | Extra |
+|---|---|---|---|---|
+| `eyebrow` | text | Dachzeile |  | max 60 |
+| `title` | text | Überschrift | Newsletter abonnieren | max 80 |
+| `text` | richtext | Text | <p>Neuigkeiten etwa einmal im Monat.</p> | max 300 |
+| `name_label` | text | Feld Vorname | Vorname | max 40 |
+| `name_placeholder` | text | Platzhalter Vorname | Dein Vorname | max 40 |
+| `email_label` | text | Feld E-Mail | E-Mail | max 40 |
+| `email_placeholder` | text | Platzhalter E-Mail | Deine E-Mail-Adresse | max 60 |
+| `consent` | richtext | Einwilligung | <p>Ja, ich möchte den Newsletter erhalten. Die <a href="/datenschutz/">Datenschutzhinweise</a> habe ich gelesen.</p> | max 300 |
+| `button_text` | text | Button | Anmelden | max 30 |
+| `note` | text | Hinweis | Abmelden jederzeit möglich. | max 120 |
 
 ## seiteninhalt
 
@@ -323,6 +472,49 @@ _None._
 | `items.{n}.email` | button | E-Mail | {"text":"E-Mail","url":"mailto:info@beispiel.de"} | max 80 |
 | `items.{n}.phone` | button | Telefon | {"text":"","url":""} | max 40 |
 
+## termin
+
+**Termin** · version 1 · source `plugin`
+
+### Variants
+
+| Value | Label |
+|---|---|
+| `feature` (default) | Einladung mit Bild |
+| `card` | Kompakte Termin-Karte |
+
+### Options
+
+| Option | Label | Values | Default | Variants |
+|---|---|---|---|---|
+| `image_side` | Bildposition | `left`, `right` | `right` | feature |
+| `image_style` | Bildstil | `plain`, `rounded`, `shadow` | `shadow` | feature |
+| `buttons` | Anzahl Buttons | `0`, `1`, `2` | `1` |  |
+| `marker` | Markierung (Karte) | `icon`, `image`, `none` | `icon` | card |
+| `icon` | Icon (Karte) | `calendar`, `clock`, `map-pin`, `star`, `users`, `home`, `leaf`, `heart`, `moon`, `eye`, `gem`, `target`, `play`, `building`, `check`, `mail`, `phone` | `calendar` | card |
+| `heading_level` | Überschrift-Ebene | `h2`, `h3` | `h2` |  |
+| `count` | Number of items | 0–4 | `3` | |
+
+### Fields
+
+| Field ID | Type | Label | Default | Extra |
+|---|---|---|---|---|
+| `eyebrow` | text | Dachzeile | Nächster Termin | max 60 |
+| `title` | text | Titel | Titel der Veranstaltung | max 100 |
+| `date` | text | Datum / Ort |  | max 100 |
+| `text` | richtext | Text | <p>Kurze Beschreibung der Veranstaltung.</p> | max 600 |
+| `cta1` | button | Button 1 | {"text":"Anmelden","url":"#"} | max 40 |
+| `cta2` | button | Button 2 | {"text":"","url":""} | max 40 |
+| `note` | text | Hinweis |  | max 140 |
+| `image` | image | Bild | (placeholder) | ratio 4/3 |
+| `caption` | text | Bildunterschrift |  | max 120 |
+
+### List `facts` (0–4 items, default 3)
+
+| Field ID | Type | Label | Default | Extra |
+|---|---|---|---|---|
+| `facts.{n}.label` | text | Eckdatum | Eckdatum {n} | max 40 |
+
 ## text-bild
 
 **Text & Bild** · version 1 · source `plugin`
@@ -342,6 +534,7 @@ _None._
 | `image_style` | Bildstil | `plain`, `rounded`, `shadow` | `rounded` |  |
 | `heading_level` | Überschrift-Ebene | `h2`, `h3` | `h2` |  |
 | `show_button` | Button anzeigen | `yes`, `no` | `yes` |  |
+| `eyebrow_style` | Dachzeilen-Stil | `plain`, `pill` | `plain` |  |
 
 ### Fields
 
@@ -351,6 +544,8 @@ _None._
 | `title` | text | Überschrift | Überschrift | max 100 |
 | `text` | richtext | Text | <p>Beschreiben Sie hier in wenigen Sätzen Ihr Angebot.</p><ul><li>Vorteil eins</li><li>Vorteil zwei</li><li>Vorteil drei</li></ul> | max 1200 |
 | `cta` | button | Button | {"text":"Mehr erfahren","url":"#"} | max 40 |
+| `cta2` | button | Button 2 | {"text":"","url":""} | max 40 |
+| `note` | text | Hinweis unter den Buttons |  | max 140 |
 | `image` | image | Bild | (placeholder) | ratio 4/3 |
 
 ## textblock

@@ -39,7 +39,7 @@ df_section_head( $s, 'leistungen', $h );
 			$classes[] = 'df-leistungen__card--linked';
 		}
 		?>
-		<li class="<?php echo esc_attr( implode( ' ', $classes ) ); ?>">
+		<li class="<?php echo esc_attr( implode( ' ', $classes ) ); ?>"<?php $item->attrs(); ?>>
 			<?php if ( 'cards-image' === $variant ) : ?>
 				<div class="df-frame df-leistungen__media" style="--df-ratio: <?php echo esc_attr( $item->aspect_ratio( 'image' ) ?: '4/3' ); ?>">
 					<?php $item->image( 'image', array( 'size' => 'medium_large', 'loading' => 'lazy' ) ); ?>

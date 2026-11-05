@@ -15,9 +15,6 @@ final class DF_Renderer {
 	/** Lifetime of a preview token. */
 	public const PREVIEW_TOKEN_TTL = HOUR_IN_SECONDS;
 
-	/** @var array<int,bool> Draft preview decision per post. */
-	private static array $draft_preview = array();
-
 	/** @var bool Whether the current request renders a single-section preview. */
 	private static bool $section_preview = false;
 
@@ -27,75 +24,19 @@ final class DF_Renderer {
 		add_filter( 'wp_robots', array( __CLASS__, 'preview_robots' ) );
 	}
 
-	/* ------------------------------------------------------- Draft preview */
-
 	/**
-	 * Whether this request previews the draft of a post:
-	 * ?df_preview=draft&_dfnonce=<wp_create_nonce('df_preview_'.$post_id)> and a user with
-	 * df_edit_layout or df_reorder_sections.
-	 */
-	public static function is_draft_preview( int $post_id ): bool {
-		if ( $post_id <= 0 ) {
-			return false;
-		}
-		if ( isset( self::$draft_preview[ $post_id ] ) ) {
-			return self::$draft_preview[ $post_id ];
-		}
-		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- the nonce is verified here.
-		$ok = isset( $_GET['df_preview'], $_GET['_dfnonce'] )
-			&& 'draft' === $_GET['df_preview']
-			&& is_user_logged_in()
-			&& false !== wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['_dfnonce'] ) ), 'df_preview_' . $post_id )
-			&& DF_Capabilities::can_reorder( $post_id );
-		// phpcs:enable
-		self::$draft_preview[ $post_id ] = $ok;
-		return $ok;
-	}
-
-	/**
-	 * Draft preview URL of a post (for the panel iframe: $in_panel adds df_panel_frame=1).
-	 */
-	public static function preview_url( int $post_id, bool $in_panel = true ): string {
-		$args = array(
-			'df_preview' => 'draft',
-			'_dfnonce'   => wp_create_nonce( 'df_preview_' . $post_id ),
-		);
-		if ( $in_panel ) {
-			$args['df_panel_frame'] = '1';
-		}
-		return add_query_arg( $args, (string) get_permalink( $post_id ) );
-	}
-
-	/**
-	 * Whether the page is shown inside the DF Panel iframe (df_panel_frame=1).
-	 */
-	public static function in_panel_frame(): bool {
-		return isset( $_GET['df_panel_frame'] ) && '1' === $_GET['df_panel_frame']; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-	}
-
-	/**
-	 * The layout to render for a post: the draft during a valid draft preview (when there is
-	 * one), otherwise the live layout.
+	 * The layout to render for a post (the live layout), or null.
 	 */
 	public static function layout_for( int $post_id ): ?array {
-		if ( $post_id <= 0 ) {
-			return null;
-		}
-		if ( self::is_draft_preview( $post_id ) ) {
-			$draft = DF_Layout_Store::get_draft( $post_id );
-			if ( null !== $draft ) {
-				return $draft;
-			}
-		}
-		return DF_Layout_Store::get( $post_id );
+		return $post_id > 0 ? DF_Layout_Store::get( $post_id ) : null;
 	}
 
 	/**
-	 * Previews (draft, panel frame, single section) are never cached.
+	 * Single-section previews are never cached.
 	 */
 	public static function preview_headers(): void {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		if ( isset( $_GET['df_preview'] ) || isset( $_GET['df_section_preview'] ) || self::in_panel_frame() ) {
+		if ( isset( $_GET['df_section_preview'] ) ) {
 			nocache_headers();
 			if ( ! defined( 'DONOTCACHEPAGE' ) ) {
 				define( 'DONOTCACHEPAGE', true ); // Page cache plugins.
@@ -104,11 +45,11 @@ final class DF_Renderer {
 	}
 
 	/**
-	 * noindex for previews.
+	 * noindex for single-section previews.
 	 */
 	public static function preview_robots( array $robots ): array {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		if ( isset( $_GET['df_preview'] ) || isset( $_GET['df_section_preview'] ) || self::in_panel_frame() ) {
+		if ( isset( $_GET['df_section_preview'] ) ) {
 			$robots['noindex']  = true;
 			$robots['nofollow'] = true;
 		}
@@ -156,7 +97,7 @@ final class DF_Renderer {
 		);
 		// phpcs:enable
 
-		if ( ! DF_Capabilities::can_edit_layout() && ! self::valid_preview_token( $token ) ) {
+		if ( ! current_user_can( 'edit_pages' ) && ! self::valid_preview_token( $token ) ) {
 			nocache_headers();
 			status_header( 403 );
 			wp_die( esc_html__( 'You are not allowed to preview sections.', 'df-editor' ), '', array( 'response' => 403 ) );
@@ -209,8 +150,7 @@ final class DF_Renderer {
 	}
 
 	/**
-	 * Renders the layout of a page (current post when null). During a valid draft preview the
-	 * draft is rendered instead of the live layout.
+	 * Renders the layout of a page (current post when null).
 	 */
 	public static function render_layout( ?int $post_id = null ): void {
 		$post_id = $post_id ?? (int) get_the_ID();
@@ -249,8 +189,13 @@ final class DF_Renderer {
 
 	/**
 	 * Renders one layout entry inside the standard wrapper.
+	 *
+	 * @param array  $inst     Layout entry.
+	 * @param string $page_key Page key.
+	 * @param array  $source   Content source for DF_Section ([] = DF Inhalt; DF blocks v2 pass
+	 *                         ['blocks' => true, 'preview' => bool], "content" then holds the values).
 	 */
-	public static function render_instance( array $inst, string $page_key ): void {
+	public static function render_instance( array $inst, string $page_key, array $source = array() ): void {
 		if ( ! empty( $inst['hidden'] ) ) {
 			return;
 		}
@@ -271,7 +216,7 @@ final class DF_Renderer {
 
 		DF_Assets::enqueue_section( $type ); // No-op when already enqueued in <head>.
 
-		$s    = new DF_Section( $inst, $def, $page_key );
+		$s    = new DF_Section( $inst, $def, $page_key, $source );
 		$norm = $s->instance();
 
 		$classes = array(

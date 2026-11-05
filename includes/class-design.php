@@ -2,7 +2,7 @@
 /**
  * DF Design: site-wide design overrides (option df_design) on top of the theme.json tokens.
  *
- * Shared schema for the Customizer (class-customizer.php) and later the DF Panel "Design" tab.
+ * Shared schema for the Customizer (class-customizer.php).
  * Values are injected through the theme.json user layer (filter wp_theme_json_data_user), so
  * WordPress regenerates --wp--preset--color--primary & co. and every section follows.
  * An empty value means "use the theme.json value".

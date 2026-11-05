@@ -162,7 +162,8 @@ endif;
 		$has_e = '' !== trim( (string) ( $email['text'] ?? '' ) );
 		$has_p = '' !== trim( (string) ( $phone['text'] ?? '' ) );
 		?>
-		<li class="df-team__member">
+		<li class="df-team__member"<?php $item->attrs(); ?>>
+			<?php if ( $item->has_image( 'image' ) ) : ?>
 			<div class="<?php echo esc_attr( $frame_classes ); ?>" style="--df-ratio: <?php echo esc_attr( $ratio ); ?>">
 				<?php
 				$item->image(
@@ -175,6 +176,7 @@ endif;
 				);
 				?>
 			</div>
+			<?php endif; ?>
 			<div class="df-team__body">
 				<<?php echo $h_item; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?> class="df-team__name"><?php $item->text( 'name' ); ?></<?php echo $h_item; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
 				<p class="df-team__role df-muted"><?php $item->text( 'role' ); ?></p>

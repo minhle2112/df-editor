@@ -20,7 +20,6 @@ final class DF_Assets {
 		if ( ! is_singular() || DF_Renderer::is_section_preview() ) {
 			return;
 		}
-		// The draft during a DF Panel draft preview, else the live layout.
 		$layout = DF_Renderer::layout_for( (int) get_queried_object_id() );
 		$types  = array();
 		foreach ( (array) ( $layout['sections'] ?? array() ) as $inst ) {

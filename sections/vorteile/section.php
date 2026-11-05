@@ -30,7 +30,7 @@ $visible = array_filter(
 		$n    = $item->index();
 		$icon = (string) df_item_setting( $s, $n, 'icon', $fallback[ ( $n - 1 ) % count( $fallback ) ] );
 		?>
-		<li class="df-vorteile__item">
+		<li class="df-vorteile__item"<?php $item->attrs(); ?>>
 			<?php if ( 'none' !== $icon ) : ?>
 				<span class="df-vorteile__icon"><?php df_icon( $icon ); ?></span>
 			<?php endif; ?>
