@@ -95,18 +95,21 @@ final class DF_Validator {
 			}
 
 			// Common options.
-			if ( isset( $inst['scheme'] ) && ! in_array( (string) $inst['scheme'], DF_Section::SCHEMES, true ) ) {
+			if ( isset( $inst['scheme'] ) && ! in_array( is_scalar( $inst['scheme'] ) ? (string) $inst['scheme'] : null, DF_Section::SCHEMES, true ) ) {
 				/* translators: 1: option name, 2: value, 3: allowed values */
-				$errors[] = $where . ': ' . sprintf( __( 'option "%1$s" has invalid value "%2$s" (%3$s).', 'df-editor' ), 'scheme', $inst['scheme'], implode( ', ', DF_Section::SCHEMES ) );
+				$errors[] = $where . ': ' . sprintf( __( 'option "%1$s" has invalid value "%2$s" (%3$s).', 'df-editor' ), 'scheme', is_scalar( $inst['scheme'] ) ? $inst['scheme'] : '?', implode( ', ', DF_Section::SCHEMES ) );
 			}
 			foreach ( array( 'top', 'bottom' ) as $side ) {
-				if ( isset( $inst['spacing'][ $side ] ) && ! in_array( (string) $inst['spacing'][ $side ], DF_Section::SPACING, true ) ) {
+				if ( isset( $inst['spacing'][ $side ] ) && ! in_array( is_scalar( $inst['spacing'][ $side ] ) ? (string) $inst['spacing'][ $side ] : null, DF_Section::SPACING, true ) ) {
 					/* translators: 1: option name, 2: value, 3: allowed values */
-					$errors[] = $where . ': ' . sprintf( __( 'option "%1$s" has invalid value "%2$s" (%3$s).', 'df-editor' ), 'spacing.' . $side, $inst['spacing'][ $side ], implode( ', ', DF_Section::SPACING ) );
+					$errors[] = $where . ': ' . sprintf( __( 'option "%1$s" has invalid value "%2$s" (%3$s).', 'df-editor' ), 'spacing.' . $side, is_scalar( $inst['spacing'][ $side ] ) ? $inst['spacing'][ $side ] : '?', implode( ', ', DF_Section::SPACING ) );
 				}
 			}
-			if ( isset( $inst['width'] ) && ! in_array( (string) $inst['width'], DF_Section::WIDTHS, true ) ) {
-				$errors[] = $where . ': ' . sprintf( __( 'option "%1$s" has invalid value "%2$s" (%3$s).', 'df-editor' ), 'width', $inst['width'], implode( ', ', DF_Section::WIDTHS ) );
+			if ( isset( $inst['width'] ) && ! in_array( is_scalar( $inst['width'] ) ? (string) $inst['width'] : null, DF_Section::WIDTHS, true ) ) {
+				$errors[] = $where . ': ' . sprintf( __( 'option "%1$s" has invalid value "%2$s" (%3$s).', 'df-editor' ), 'width', is_scalar( $inst['width'] ) ? $inst['width'] : '?', implode( ', ', DF_Section::WIDTHS ) );
+			}
+			if ( isset( $inst['animation'] ) && ! in_array( $inst['animation'], DF_Section::ANIMATIONS, true ) ) {
+				$errors[] = $where . ': ' . sprintf( __( 'option "%1$s" has invalid value "%2$s" (%3$s).', 'df-editor' ), 'animation', is_scalar( $inst['animation'] ) ? $inst['animation'] : '?', implode( ', ', DF_Section::ANIMATIONS ) );
 			}
 			foreach ( array( 'hidden', 'locked' ) as $flag ) {
 				if ( isset( $inst[ $flag ] ) && ! is_bool( $inst[ $flag ] ) ) {

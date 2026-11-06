@@ -38,6 +38,13 @@ final class DF_Design {
 
 	public const BUTTON_STYLES = array( 'filled', 'outline' );
 
+	/** Scroll animation levels (DF Motion): [ distance, duration, stagger ]; "off" = no animation. */
+	public const MOTION_LEVELS = array(
+		'off'    => null,
+		'subtle' => array( '12px', '450ms', '80ms' ),
+		'normal' => array( '24px', '650ms', '100ms' ),
+	);
+
 	/** Fallback colours when the theme does not declare a slug. */
 	private const FALLBACK_PALETTE = array(
 		'base'     => '#ffffff',
@@ -66,6 +73,7 @@ final class DF_Design {
 			'body_font'    => '',
 			'radius'       => '',
 			'button_style' => 'filled',
+			'motion'       => 'off',
 		);
 	}
 
@@ -75,6 +83,24 @@ final class DF_Design {
 	public static function get(): array {
 		$saved = get_option( self::OPTION, array() );
 		return array_merge( self::defaults(), array_intersect_key( is_array( $saved ) ? $saved : array(), self::defaults() ) );
+	}
+
+	/**
+	 * Scroll animation level: off|subtle|normal (default off).
+	 */
+	public static function motion(): string {
+		return self::sanitize_motion( self::get()['motion'] );
+	}
+
+	/**
+	 * Labels for the scroll animation levels.
+	 */
+	public static function motion_choices(): array {
+		return array(
+			'off'    => __( 'Off', 'df-editor' ),
+			'subtle' => __( 'Subtle', 'df-editor' ),
+			'normal' => __( 'Normal', 'df-editor' ),
+		);
 	}
 
 	/**
@@ -304,6 +330,10 @@ final class DF_Design {
 		return in_array( $value, self::BUTTON_STYLES, true ) ? $value : 'filled';
 	}
 
+	public static function sanitize_motion( $value ): string {
+		return is_string( $value ) && array_key_exists( $value, self::MOTION_LEVELS ) ? $value : 'off';
+	}
+
 	/**
 	 * Sanitises a full df_design array. A colour failing the 3:1 rule keeps its old value.
 	 *
@@ -330,6 +360,7 @@ final class DF_Design {
 		$clean['body_font']    = self::sanitize_font( $new['body_font'] ?? '' );
 		$clean['radius']       = self::sanitize_radius( $new['radius'] ?? '' );
 		$clean['button_style'] = self::sanitize_button_style( $new['button_style'] ?? 'filled' );
+		$clean['motion']       = self::sanitize_motion( $new['motion'] ?? 'off' );
 
 		return array( $clean, $errors );
 	}

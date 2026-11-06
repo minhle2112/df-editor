@@ -104,7 +104,11 @@ final class DF_Fallback {
 	/**
 	 * Writes the fallback into post_content when allowed.
 	 *
-	 * @return string "written", "skipped-seiteninhalt", "skipped-content" or "error".
+	 * Never writes while a visible section has no registered type (e.g. a removed library
+	 * section): build() would skip it and replace the existing text with an empty fallback.
+	 *
+	 * @return string "written", "skipped-seiteninhalt", "skipped-content",
+	 *                "skipped-missing-sections" or "error".
 	 */
 	public static function write( int $post_id, bool $overwrite = false ): string {
 		$layout = DF_Layout_Store::get( $post_id );
@@ -114,6 +118,9 @@ final class DF_Fallback {
 		$current = (string) get_post_field( 'post_content', $post_id );
 		if ( ! $overwrite && ! self::can_replace( $current ) ) {
 			return 'skipped-content';
+		}
+		if ( self::has_missing_sections( $layout ) ) {
+			return 'skipped-missing-sections';
 		}
 		$html = self::build( $layout, (string) $layout['page_key'] );
 		if ( trim( $html ) === trim( $current ) ) {
@@ -127,5 +134,20 @@ final class DF_Fallback {
 			true
 		);
 		return is_wp_error( $result ) ? 'error' : 'written';
+	}
+
+	/**
+	 * Whether a visible layout entry uses a section type that is not registered.
+	 */
+	public static function has_missing_sections( array $layout ): bool {
+		foreach ( (array) ( $layout['sections'] ?? array() ) as $inst ) {
+			if ( ! is_array( $inst ) || ! empty( $inst['hidden'] ) ) {
+				continue;
+			}
+			if ( null === DF_Registry::get( (string) ( $inst['section'] ?? '' ) ) ) {
+				return true;
+			}
+		}
+		return false;
 	}
 }

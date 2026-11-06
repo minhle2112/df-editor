@@ -1,6 +1,6 @@
 <?php
 /**
- * Customizer section "DF Design" (colours, fonts, radius, button style).
+ * Customizer section "DF Design" (colours, fonts, radius, scroll animations, button style).
  *
  * Values live in option df_design (see DF_Design). Transport is "refresh": the preview reloads
  * and WordPress regenerates the theme.json CSS variables, which is reliable for every token
@@ -108,6 +108,7 @@ final class DF_Customizer {
 			'heading_font' => array( __( 'Heading font', 'df-editor' ), DF_Design::font_choices(), array( 'DF_Design', 'sanitize_font' ), __( 'System stacks need no download. Theme fonts are self-hosted by the theme.', 'df-editor' ) ),
 			'body_font'    => array( __( 'Body font', 'df-editor' ), DF_Design::font_choices(), array( 'DF_Design', 'sanitize_font' ), '' ),
 			'radius'       => array( __( 'Corner radius', 'df-editor' ), DF_Design::radius_choices(), array( 'DF_Design', 'sanitize_radius' ), __( 'Buttons, cards and framed images.', 'df-editor' ) ),
+			'motion'       => array( __( 'Scroll animations', 'df-editor' ), DF_Design::motion_choices(), array( 'DF_Design', 'sanitize_motion' ), __( 'Sections fade in when they scroll into view. Each section can turn it off. Visitors who prefer reduced motion see no animation.', 'df-editor' ) ),
 		);
 		foreach ( $selects as $key => [ $label, $choices, $sanitize, $description ] ) {
 			$id = DF_Design::OPTION . '[' . $key . ']';

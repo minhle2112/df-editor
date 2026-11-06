@@ -1,6 +1,9 @@
 <?php
 /**
- * Section registry: scans section.json files in the plugin, the parent theme and the child theme.
+ * Section registry: scans the df-sections/<type>/section.json files of the parent theme and the child theme.
+ *
+ * The plugin ships no sections (CSS framework + per-client sections in the theme). With no theme
+ * sections the registry is empty and every layout entry renders the "missing section" notice.
  *
  * @package DF_Editor
  */
@@ -14,12 +17,12 @@ final class DF_Registry {
 
 	/**
 	 * All registered section definitions keyed by type.
-	 * Later sources win: plugin < parent theme < child theme.
+	 * Later sources win: parent theme < child theme.
 	 *
 	 * Each definition is the decoded section.json plus:
 	 * - dir    absolute folder path (trailing slash)
 	 * - url    folder URL (trailing slash)
-	 * - source plugin|theme|child-theme
+	 * - source theme|child-theme
 	 */
 	public static function all(): array {
 		if ( null !== self::$sections ) {
@@ -27,7 +30,7 @@ final class DF_Registry {
 		}
 
 		$sections = array();
-		$sources  = array( 'plugin' => array( DF_EDITOR_DIR . 'sections', DF_EDITOR_URL . 'sections' ) );
+		$sources  = array();
 
 		$sources['theme'] = array( get_template_directory() . '/df-sections', get_template_directory_uri() . '/df-sections' );
 		if ( get_stylesheet_directory() !== get_template_directory() ) {

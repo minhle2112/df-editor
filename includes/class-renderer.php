@@ -18,10 +18,36 @@ final class DF_Renderer {
 	/** @var bool Whether the current request renders a single-section preview. */
 	private static bool $section_preview = false;
 
+	/** @var int Sections rendered on this request (the first one does not animate with "auto": LCP). */
+	private static int $rendered = 0;
+
 	public static function init(): void {
 		add_action( 'template_redirect', array( __CLASS__, 'maybe_section_preview' ), 0 );
 		add_action( 'template_redirect', array( __CLASS__, 'preview_headers' ), 1 );
 		add_filter( 'wp_robots', array( __CLASS__, 'preview_robots' ) );
+		add_filter( 'render_block', array( __CLASS__, 'removed_block' ), 10, 2 );
+	}
+
+	/**
+	 * DF blocks (df/*) of the removed Gutenberg integration render nothing for visitors and the
+	 * "Section not available" notice for editors, so pages built from them get rebuilt.
+	 *
+	 * @param string $content Rendered block.
+	 * @param array  $block   Parsed block.
+	 */
+	public static function removed_block( $content, $block ) {
+		$name = is_array( $block ) ? (string) ( $block['blockName'] ?? '' ) : '';
+		if ( 0 !== strpos( $name, 'df/' ) || \WP_Block_Type_Registry::get_instance()->is_registered( $name ) ) {
+			return $content;
+		}
+		if ( ! current_user_can( 'edit_pages' ) ) {
+			return '';
+		}
+		DF_Assets::enqueue_base();
+		$id = (string) ( $block['attrs']['dfId'] ?? '' );
+		ob_start();
+		self::missing( 'df-block ' . substr( $name, 3 ), $id );
+		return (string) ob_get_clean();
 	}
 
 	/**
@@ -192,10 +218,8 @@ final class DF_Renderer {
 	 *
 	 * @param array  $inst     Layout entry.
 	 * @param string $page_key Page key.
-	 * @param array  $source   Content source for DF_Section ([] = DF Inhalt; DF blocks v2 pass
-	 *                         ['blocks' => true, 'preview' => bool], "content" then holds the values).
 	 */
-	public static function render_instance( array $inst, string $page_key, array $source = array() ): void {
+	public static function render_instance( array $inst, string $page_key ): void {
 		if ( ! empty( $inst['hidden'] ) ) {
 			return;
 		}
@@ -216,7 +240,7 @@ final class DF_Renderer {
 
 		DF_Assets::enqueue_section( $type ); // No-op when already enqueued in <head>.
 
-		$s    = new DF_Section( $inst, $def, $page_key, $source );
+		$s    = new DF_Section( $inst, $def, $page_key );
 		$norm = $s->instance();
 
 		$classes = array(
@@ -237,11 +261,13 @@ final class DF_Renderer {
 		 */
 		$classes = (array) apply_filters( 'df_editor_section_classes', $classes, $s );
 
+		$anim = self::animation( $s, 0 === self::$rendered++ );
 		printf(
-			'<section id="%s" class="%s" data-df-section="%s">',
+			'<section id="%s" class="%s" data-df-section="%s"%s>',
 			esc_attr( $id ),
 			esc_attr( implode( ' ', array_map( 'sanitize_html_class', $classes ) ) ),
-			esc_attr( $type )
+			esc_attr( $type ),
+			'' !== $anim ? ' data-df-anim="' . esc_attr( $anim ) . '"' : ''
 		);
 		if ( '' !== $norm['anchor'] && $norm['anchor'] !== $id ) {
 			printf( '<span id="%s" class="df-anchor" aria-hidden="true"></span>', esc_attr( $norm['anchor'] ) );
@@ -249,6 +275,23 @@ final class DF_Renderer {
 		echo '<div class="df-section__inner">';
 		self::include_template( $template, $s );
 		echo '</div></section>' . "\n";
+	}
+
+	/**
+	 * Entrance animation for the wrapper (data-df-anim): "fade" / "fade-up", or "" when DF Design
+	 * motion is off, the section has none, or this is a preview (single section, admin, REST).
+	 * The first section of the page usually holds the LCP element: with "auto" it does not animate;
+	 * an explicit "fade" / "fade-up" in the layout entry (agency decision) animates it anyway.
+	 *
+	 * @param DF_Section $s     Section.
+	 * @param bool       $first First section rendered on this request.
+	 */
+	public static function animation( DF_Section $s, bool $first = false ): string {
+		if ( ( $first && 'auto' === ( $s->instance()['animation'] ?? 'auto' ) ) || 'off' === DF_Design::motion() || self::$section_preview || is_admin() || ( defined( 'REST_REQUEST' ) && REST_REQUEST ) ) {
+			return '';
+		}
+		$anim = $s->effective_animation();
+		return 'none' === $anim ? '' : $anim;
 	}
 
 	/**

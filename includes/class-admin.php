@@ -25,8 +25,7 @@ final class DF_Admin {
 
 	/**
 	 * DF layout pages (non-empty _df_layout) are edited through the layout; only those with a
-	 * "seiteninhalt" section keep the editor. Pages without _df_layout use the block editor
-	 * normally, including pages built from DF blocks (df/*, see DF_Blocks).
+	 * "seiteninhalt" section keep the editor. Pages without _df_layout use the block editor normally.
 	 */
 	private static function needs_editor( int $post_id ): bool {
 		$layout = DF_Layout_Store::get( $post_id );
@@ -59,15 +58,6 @@ final class DF_Admin {
 
 	public static function render_metabox( WP_Post $post ): void {
 		$layout = DF_Layout_Store::get( $post->ID );
-		if ( null === $layout && class_exists( 'DF_Blocks' ) && DF_Blocks::has_df_blocks( $post ) ) {
-			// A DF block page: sections live in the block editor; a JSON layout here would compete with them.
-			printf(
-				'<p>%s</p><p><code>wp df to-layout %d</code></p>',
-				esc_html__( 'This page is built with DF blocks. Arrange its sections in the block editor, or convert it back to a JSON layout with WP-CLI:', 'df-editor' ),
-				(int) $post->ID
-			);
-			return;
-		}
 		$json   = $layout ? wp_json_encode( $layout, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES ) : '';
 		$key    = (string) get_post_meta( $post->ID, DF_Layout_Store::META_KEY, true );
 		wp_nonce_field( 'df_layout_save_' . $post->ID, self::NONCE );

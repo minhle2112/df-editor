@@ -1,0 +1,228 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mockup – Muster Haustechnik</title>
+<!--
+	DF MOCKUP RULES (read before you change anything)
+	1. Only framework classes (df-framework.css, reference: docs/FRAMEWORK.md) and theme tokens
+	   (tokens.css = generated from the client theme.json: php bin/tokens-css.php <theme.json> > tokens.css).
+	2. Every block of the page is a section exactly like the WordPress renderer prints it:
+	   <section class="df-section df-<type> df-<type>--<variant> df-scheme-<scheme> df-pt-<s|m|l|xl> df-pb-…"
+	            data-df-section="<type>" data-df-variant="…" data-df-scheme="…" data-df-anim="fade-up">
+	     <div class="df-section__inner"> … </div>
+	   </section>
+	   Everything inside .df-section__inner is copied 1:1 into the theme's df-sections/<type>/section.php.
+	3. Editable content carries data-df-field="<field>" (= field key in section.json). Repeated items:
+	   container with data-df-list="items" data-df-count="N", each item data-df-item.
+	4. Extra CSS only in the <style> block below, only with tokens / --df-* variables, grouped per section
+	   (/* section: hero */ …). That block later becomes df-sections/<type>/style.css. No inline styles
+	   except the documented custom properties (--df-ratio, --df-split-cols, --df-overlay, --df-grid-min).
+	5. Mobile defaults (when the design has none): 1 column, text before image, stacked buttons,
+	   burger menu, nothing hidden. Check at 360, 768 and 1280 px.
+	6. Header and footer (data-df-theme) belong to the theme (header.php / footer.php / theme.css), not to sections.
+-->
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="df-framework.css">
+<style>
+	/* theme: header + footer (-> theme header.php / footer.php / assets/css/theme.css) */
+	.mk-header { position: sticky; top: 0; z-index: 10; border-bottom: 1px solid var(--df-border); }
+	.mk-logo { font-family: var(--df-font-heading); font-weight: 700; font-size: var(--wp--preset--font-size--large); color: inherit; text-decoration: none; }
+	.mk-nav { display: none; flex-basis: 100%; }
+	.mk-nav.is-open { display: block; }
+	.mk-nav a:not(.df-btn) { color: inherit; text-decoration: none; padding-block: var(--wp--preset--spacing--20); display: block; }
+	.mk-burger { min-height: 2.75rem; padding-inline: var(--wp--preset--spacing--30); background: none; border: 1px solid var(--df-border); border-radius: var(--df-radius); color: inherit; font: inherit; cursor: pointer; }
+	@media (min-width: 48em) {
+		.mk-nav, .mk-nav.is-open { display: block; flex-basis: auto; }
+		.mk-nav .df-cluster { gap: var(--wp--preset--spacing--50); }
+	}
+	.mk-footer a { color: inherit; }
+	.mk-footer address { font-style: normal; }
+
+	/* section: hero (-> df-sections/hero/style.css) */
+	.df-hero--bild { display: flex; align-items: center; box-sizing: border-box; min-height: 70svh; }
+	.df-hero .df-actions { margin-block-start: var(--wp--preset--spacing--50); }
+
+	/* section: faq (-> df-sections/faq/style.css) */
+	.df-faq__item { border-bottom: 1px solid var(--df-border); }
+	.df-faq__item summary { cursor: pointer; padding-block: var(--wp--preset--spacing--40); font-weight: 600; list-style-position: outside; }
+	.df-faq__item > div { padding-block-end: var(--wp--preset--spacing--40); }
+</style>
+</head>
+<body>
+
+<!-- ============ theme: header ============ -->
+<header class="df-section df-scheme-hell df-pt-s df-pb-s mk-header" data-df-theme="header">
+	<div class="df-container df-cluster df-between">
+		<a class="mk-logo" href="#">Muster Haustechnik</a>
+		<button class="mk-burger df-hide-desktop" type="button" aria-expanded="false" aria-controls="mk-nav">Menü</button>
+		<nav id="mk-nav" class="mk-nav" aria-label="Hauptnavigation">
+			<ul class="df-list-reset df-cluster">
+				<li><a href="#leistungen">Leistungen</a></li>
+				<li><a href="#ueber-uns">Über uns</a></li>
+				<li><a href="#faq">FAQ</a></li>
+				<li><a class="df-btn" href="#kontakt">Kontakt</a></li>
+			</ul>
+		</nav>
+	</div>
+</header>
+
+<main id="main">
+
+<!-- ============ section: hero, variant bild ============ -->
+<section class="df-section df-hero df-hero--bild df-scheme-dunkel df-pt-xl df-pb-xl" data-df-section="hero" data-df-variant="bild" data-df-scheme="dunkel" data-df-anim="fade-up">
+	<div class="df-section__inner">
+		<div class="df-cover-bg df-hero__bg">
+			<img data-df-field="image" src="img/platzhalter.svg" alt="" width="1200" height="900" fetchpriority="high">
+		</div>
+		<div class="df-hero__content df-stack df-measure">
+			<p class="df-eyebrow" data-df-field="eyebrow">Ihr Meisterbetrieb in Köln</p>
+			<h1 class="df-display df-hyphens" data-df-field="title">Heizung, Sanitär und Bad aus einer Hand</h1>
+			<div class="df-richtext df-lead" data-df-field="text">
+				<p>Wir planen, installieren und warten Ihre Haustechnik – zuverlässig, sauber und zum fairen Festpreis.</p>
+			</div>
+			<div class="df-actions">
+				<a class="df-btn" data-df-field="cta1" href="#kontakt">Termin vereinbaren</a>
+				<a class="df-btn df-btn--secondary" data-df-field="cta2" href="#leistungen">Unsere Leistungen</a>
+			</div>
+		</div>
+	</div>
+</section>
+
+<!-- ============ section: text-bild (image right) ============ -->
+<section id="ueber-uns" class="df-section df-text-bild df-text-bild--standard df-scheme-hell df-pt-xl df-pb-xl" data-df-section="text-bild" data-df-variant="standard" data-df-scheme="hell" data-df-anim="fade-up">
+	<div class="df-section__inner">
+		<div class="df-split">
+			<div class="df-text-bild__text df-stack">
+				<p class="df-eyebrow" data-df-field="eyebrow">Über uns</p>
+				<h2 class="df-title df-hyphens" data-df-field="title">Moderne Haustechnik, die einfach funktioniert</h2>
+				<div class="df-richtext" data-df-field="text">
+					<p>Ob neue Heizung, barrierefreies Bad oder ein tropfender Wasserhahn: Unser Team aus Meistern und Gesellen kümmert sich um alles – von der Beratung bis zur Abnahme.</p>
+					<ul>
+						<li>Heizungsmodernisierung und Wärmepumpen</li>
+						<li>Badsanierung mit Planung in 3D</li>
+						<li>Wartung und 24-Stunden-Notdienst</li>
+					</ul>
+				</div>
+				<div class="df-actions">
+					<a class="df-btn" data-df-field="cta" href="#">Unser Team kennenlernen</a>
+				</div>
+			</div>
+			<div class="df-text-bild__media df-frame df-frame--rounded" style="--df-ratio: 4/3">
+				<img data-df-field="image" src="img/platzhalter.svg" alt="Monteur bei der Wartung einer Heizung" width="1200" height="900" loading="lazy">
+			</div>
+		</div>
+	</div>
+</section>
+
+<!-- ============ section: karten, variant bild, 3 cards ============ -->
+<section id="leistungen" class="df-section df-karten df-karten--bild df-scheme-hell-alt df-pt-xl df-pb-xl" data-df-section="karten" data-df-variant="bild" data-df-scheme="hell-alt" data-df-anim="fade-up">
+	<div class="df-section__inner">
+		<div class="df-stack df-stack--l">
+			<header class="df-karten__head df-stack df-measure">
+				<p class="df-eyebrow" data-df-field="eyebrow">Leistungen</p>
+				<h2 class="df-title df-hyphens" data-df-field="title">Was wir für Sie tun</h2>
+				<div class="df-richtext df-lead" data-df-field="intro"><p>Vom ersten Beratungsgespräch bis zur jährlichen Wartung – alles aus einer Hand.</p></div>
+			</header>
+			<ul class="df-karten__list df-list-reset df-grid df-grid--3" role="list" data-df-list="items" data-df-count="3">
+				<li class="df-karten__item df-card df-stack df-stack--s" data-df-item>
+					<div class="df-karten__media df-ratio-3x2"><img data-df-field="image" src="img/platzhalter.svg" alt="Neue Wärmepumpe vor einem Einfamilienhaus" width="1200" height="900" loading="lazy"></div>
+					<h3 class="df-text-large df-hyphens" data-df-field="title">Heizung &amp; Wärmepumpe</h3>
+					<div class="df-richtext df-muted" data-df-field="text"><p>Modernisierung, Austausch und Förderberatung für Gas-, Hybrid- und Wärmepumpenanlagen.</p></div>
+					<p><a class="df-btn df-btn--link" data-df-field="link" href="#">Mehr erfahren</a></p>
+				</li>
+				<li class="df-karten__item df-card df-stack df-stack--s" data-df-item>
+					<div class="df-karten__media df-ratio-3x2"><img data-df-field="image" src="img/platzhalter.svg" alt="Modernes Bad mit bodengleicher Dusche" width="1200" height="900" loading="lazy"></div>
+					<h3 class="df-text-large df-hyphens" data-df-field="title">Badsanierung</h3>
+					<div class="df-richtext df-muted" data-df-field="text"><p>Ihr neues Bad mit 3D-Planung, barrierefrei auf Wunsch und mit festem Zeitplan.</p></div>
+					<p><a class="df-btn df-btn--link" data-df-field="link" href="#">Mehr erfahren</a></p>
+				</li>
+				<li class="df-karten__item df-card df-stack df-stack--s" data-df-item>
+					<div class="df-karten__media df-ratio-3x2"><img data-df-field="image" src="img/platzhalter.svg" alt="Techniker prüft eine Gastherme" width="1200" height="900" loading="lazy"></div>
+					<h3 class="df-text-large df-hyphens" data-df-field="title">Wartung &amp; Notdienst</h3>
+					<div class="df-richtext df-muted" data-df-field="text"><p>Regelmäßige Wartung für sichere Anlagen und schnelle Hilfe rund um die Uhr.</p></div>
+					<p><a class="df-btn df-btn--link" data-df-field="link" href="#">Mehr erfahren</a></p>
+				</li>
+			</ul>
+		</div>
+	</div>
+</section>
+
+<!-- ============ section: faq (client section, not in the starter: write df-sections/faq/) ============ -->
+<section id="faq" class="df-section df-faq df-faq--standard df-scheme-hell df-pt-xl df-pb-xl" data-df-section="faq" data-df-variant="standard" data-df-scheme="hell" data-df-anim="fade-up">
+	<div class="df-section__inner">
+		<div class="df-split df-items-start" style="--df-split-cols: 2fr 3fr">
+			<header class="df-faq__head df-stack">
+				<p class="df-eyebrow" data-df-field="eyebrow">FAQ</p>
+				<h2 class="df-title df-hyphens" data-df-field="title">Häufige Fragen</h2>
+				<div class="df-richtext df-muted" data-df-field="intro"><p>Ihre Frage ist nicht dabei? Rufen Sie uns an.</p></div>
+			</header>
+			<div class="df-faq__list" data-df-list="items" data-df-count="3">
+				<details class="df-faq__item" data-df-item open>
+					<summary data-df-field="question">In welchen Orten sind Sie tätig?</summary>
+					<div class="df-richtext" data-df-field="answer"><p>In ganz Köln und im Umkreis von etwa 30 Kilometern, zum Beispiel in Leverkusen, Hürth und Frechen.</p></div>
+				</details>
+				<details class="df-faq__item" data-df-item>
+					<summary data-df-field="question">Bieten Sie einen Notdienst an?</summary>
+					<div class="df-richtext" data-df-field="answer"><p>Ja, rund um die Uhr – auch am Wochenende und an Feiertagen.</p></div>
+				</details>
+				<details class="df-faq__item" data-df-item>
+					<summary data-df-field="question">Bekomme ich vorab ein verbindliches Angebot?</summary>
+					<div class="df-richtext" data-df-field="answer"><p>Ja. Nach dem kostenlosen Vor-Ort-Termin erhalten Sie ein schriftliches Festpreisangebot.</p></div>
+				</details>
+			</div>
+		</div>
+	</div>
+</section>
+
+<!-- ============ section: hero, variant text = CTA band ============ -->
+<section id="kontakt" class="df-section df-hero df-hero--text df-scheme-primaer df-pt-l df-pb-l" data-df-section="hero" data-df-variant="text" data-df-scheme="primaer" data-df-anim="fade-up">
+	<div class="df-section__inner">
+		<div class="df-hero__content df-stack df-measure df-center df-text-center">
+			<p class="df-eyebrow" data-df-field="eyebrow">Persönliche Beratung</p>
+			<h2 class="df-display df-hyphens" data-df-field="title">Sprechen Sie mit Thomas Becker</h2>
+			<div class="df-richtext df-lead" data-df-field="text"><p>Kostenlos und unverbindlich zu Heizung, Bad und Förderung.</p></div>
+			<div class="df-actions">
+				<a class="df-btn" data-df-field="cta1" href="#">Rückruf anfordern</a>
+				<a class="df-btn df-btn--secondary" data-df-field="cta2" href="tel:+492219876540">0221 987 654 0</a>
+			</div>
+		</div>
+	</div>
+</section>
+
+</main>
+
+<!-- ============ theme: footer ============ -->
+<footer class="df-section df-scheme-dunkel df-pt-l df-pb-m mk-footer" data-df-theme="footer">
+	<div class="df-container df-stack df-stack--l">
+		<div class="df-grid df-grid--3">
+			<div class="df-stack df-stack--s">
+				<p class="df-font-heading df-text-large"><strong>Muster Haustechnik GmbH</strong></p>
+				<address>Musterstraße 12, 50667 Köln<br>Telefon: <a href="tel:+492219876540">0221 987 654 0</a><br>E-Mail: <a href="mailto:info@muster-haustechnik.de">info@muster-haustechnik.de</a></address>
+			</div>
+			<div class="df-stack df-stack--s">
+				<p><strong>Öffnungszeiten</strong></p>
+				<p class="df-muted">Mo–Fr 7:30–17:00 Uhr<br>Notdienst rund um die Uhr</p>
+			</div>
+			<nav aria-label="Rechtliches">
+				<ul class="df-list-reset df-stack df-stack--s">
+					<li><a href="#">Impressum</a></li>
+					<li><a href="#">Datenschutz</a></li>
+				</ul>
+			</nav>
+		</div>
+		<p class="df-text-small df-muted">© 2026 Muster Haustechnik GmbH</p>
+	</div>
+</footer>
+
+<script>
+	// Mockup only: burger menu (the theme ships its own assets/js/theme.js).
+	document.querySelector('.mk-burger').addEventListener('click', function () {
+		var nav = document.getElementById('mk-nav');
+		var open = nav.classList.toggle('is-open');
+		this.setAttribute('aria-expanded', open ? 'true' : 'false');
+	});
+</script>
+</body>
+</html>

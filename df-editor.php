@@ -1,8 +1,8 @@
 <?php
 /**
  * Plugin Name:       DF Editor
- * Description:       Section library, page layouts and front-end content editing (DF Inhalt) by Digitale Formate.
- * Version:           0.1.0
+ * Description:       Page layouts from theme sections, CSS framework and front-end content editing (DF Inhalt) by Digitale Formate.
+ * Version:           1.0.0
  * Requires at least: 6.4
  * Requires PHP:      8.0
  * Author:            Digitale Formate
@@ -17,7 +17,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'DF_EDITOR_VERSION', '0.1.0' );
+define( 'DF_EDITOR_VERSION', '1.0.0' );
 define( 'DF_EDITOR_FILE', __FILE__ );
 define( 'DF_EDITOR_DIR', plugin_dir_path( __FILE__ ) );
 define( 'DF_EDITOR_URL', plugin_dir_url( __FILE__ ) );
@@ -44,10 +44,18 @@ require_once DF_EDITOR_DIR . 'includes/class-design.php';
 require_once DF_EDITOR_DIR . 'includes/class-customizer.php';
 require_once DF_EDITOR_DIR . 'includes/class-settings.php';
 require_once DF_EDITOR_DIR . 'includes/class-upgrade.php';
-require_once DF_EDITOR_DIR . 'includes/class-section-schema.php';
-require_once DF_EDITOR_DIR . 'includes/class-blocks.php';
 require_once DF_EDITOR_DIR . 'includes/class-updater.php';
 require_once DF_EDITOR_DIR . 'includes/helpers.php';
+
+// Section template helpers and icons: after the theme's functions.php, so a theme's own version wins.
+add_action(
+	'after_setup_theme',
+	static function (): void {
+		require_once DF_EDITOR_DIR . 'includes/icons.php';
+		require_once DF_EDITOR_DIR . 'includes/section-helpers.php';
+	},
+	0
+);
 
 // Feature modules (custom post types, form integration): every file, sorted, if present.
 foreach ( array( 'cpt', 'forms' ) as $df_editor_module_dir ) {
@@ -78,7 +86,6 @@ register_activation_hook( __FILE__, array( 'DF_Upgrade', 'activate' ) );
 DF_Layout_Store::init();
 DF_Upgrade::init();
 DF_Renderer::init();
-DF_Blocks::init();
 DF_Assets::init();
 DF_Setup::init();
 DF_Design::init();

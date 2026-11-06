@@ -1,0 +1,23 @@
+/**
+ * DF Motion: transitions of the entrance animations (DF Design → Scroll animations).
+ *
+ * Not enqueued: DF_Assets::motion_head() prints it (comments stripped) inline in <head>, after the
+ * hidden start state it builds from the section.json "motion" selectors. motion.js adds .df-anim-item + --df-i to the items and
+ * "is-in" to the section. Tokens (set on :root inline, a theme may override them):
+ * --df-anim-duration, --df-anim-distance, --df-anim-stagger, --df-anim-easing.
+ */
+@media screen and (prefers-reduced-motion: no-preference) {
+	html.df-motion:not(.df-edit-active) [data-df-anim]:not(:focus-within) .df-anim-item {
+		transition:
+			opacity var(--df-anim-duration, 650ms) var(--df-anim-easing, ease-out),
+			transform var(--df-anim-duration, 650ms) var(--df-anim-easing, ease-out);
+		transition-delay: calc(var(--df-i, 0) * var(--df-anim-stagger, 100ms));
+	}
+}
+
+/* Never in the way: edit mode (DF Inhalt) and motion switched off show everything at once; so does
+   keyboard focus inside a section (:not(:focus-within) above and in the inline hide rules). */
+html.df-edit-active [data-df-anim] .df-anim-item,
+html:not(.df-motion) [data-df-anim] .df-anim-item {
+	transition: none;
+}

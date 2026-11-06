@@ -4,7 +4,7 @@
  *
  * - detect plugins, list forms (id => title), render a form via its shortcode
  * - CF7 honeypot (option df_editor_settings['honeypot'], default on)
- * - form styles live in sections/formular/style.css; CF7's own JS/CSS load only on pages that
+ * - form styles live in the theme's form section (df-sections/<type>/style.css); CF7's own JS/CSS load only on pages that
  *   print a CF7 form (cf7_gate_assets() + late enqueue in render())
  *
  * Self-contained: loaded by df-editor.php (glob of includes/forms/*.php) on plugins_loaded.

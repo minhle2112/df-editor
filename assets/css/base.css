@@ -1,7 +1,9 @@
 /**
- * DF Editor base styles.
+ * DF Editor base styles = the DF CSS framework (single source).
  * Rules: only theme tokens (var(--wp--preset--*), var(--wp--custom--*)) with fallbacks;
  * sections use the --df-* variables set here, never raw colours.
+ * Class reference: docs/FRAMEWORK.md. framework/df-framework.css is a generated copy for
+ * plain-HTML mockups (php bin/tokens-css.php --framework); never edit the copy.
  */
 
 /* ---------- Layout tokens ---------- */
@@ -173,6 +175,136 @@
 .df-frame--shadow  { border-radius: var(--df-radius); box-shadow: var(--df-shadow); }
 /* Per-site placeholder image (no image chosen yet): decorative, alt="". Editors see a dashed hint. */
 html.df-edit-active .df-img--placeholder { outline: 2px dashed var(--df-border, currentColor); outline-offset: -4px; }
+
+/* =====================================================================
+ * Framework utilities (docs/FRAMEWORK.md). Mobile first; only tokens.
+ * Breakpoint where needed: 48em (768px). Everything else is fluid.
+ * ===================================================================== */
+.df-section img { max-width: 100%; }
+
+/* ---------- Layout ---------- */
+.df-container {
+	width: 100%;
+	max-width: calc(var(--df-container) + 2 * var(--df-gutter));
+	margin-inline: auto;
+	padding-inline: var(--df-gutter);
+}
+.df-section__inner .df-container { padding-inline: 0; } /* already inside the section gutter */
+
+/* Vertical flow: children spaced evenly, no stray margins.
+ * Doubled class = specificity (0,2,0), so it beats ".df-section h2" margins. */
+.df-stack.df-stack > * { margin-block: 0; }
+.df-stack.df-stack > * + * { margin-block-start: var(--df-space); }
+.df-stack    { --df-space: var(--wp--preset--spacing--40, 1rem); } /* set per stack: nested stacks do not inherit */
+.df-stack--s { --df-space: var(--wp--preset--spacing--30, .75rem); }
+.df-stack--m { --df-space: var(--wp--preset--spacing--50, 2rem); }
+.df-stack--l { --df-space: var(--wp--preset--spacing--60, 3rem); }
+
+.df-flex         { display: flex; }
+.df-cluster      { display: flex; flex-wrap: wrap; align-items: center; gap: var(--wp--preset--spacing--30, .75rem); }
+
+/* Grid: auto-fit columns of at least --df-grid-min; --2/--3/--4 cap the column count and
+ * drop to fewer columns (down to 1) when a column would get narrower than --df-grid-min. */
+.df-grid {
+	--df-grid-gap: var(--df-gap);
+	--df-cols: 12;
+	--df-grid-min: 16rem;
+	display: grid;
+	gap: var(--df-grid-gap);
+	grid-template-columns: repeat(auto-fit, minmax(min(100%, max(var(--df-grid-min), (100% - (var(--df-cols) - 1) * var(--df-grid-gap)) / var(--df-cols))), 1fr));
+}
+.df-grid--2 { --df-cols: 2; --df-grid-min: 20rem; }
+.df-grid--3 { --df-cols: 3; --df-grid-min: 16rem; }
+.df-grid--4 { --df-cols: 4; --df-grid-min: 12rem; }
+.df-span-full { grid-column: 1 / -1; }
+
+/* Split: text + media. 1 column on mobile (DOM order), 2 columns from 48em.
+ * --reverse: second child left on desktop. --media-first-mobile: last child on top on mobile.
+ * Column ratio: style="--df-split-cols: 2fr 3fr". */
+.df-split {
+	display: grid;
+	gap: var(--wp--preset--spacing--60, 3rem);
+	align-items: center;
+}
+.df-split--media-first-mobile > :last-child { order: -1; }
+@media (min-width: 48em) {
+	.df-split { grid-template-columns: var(--df-split-cols, 1fr 1fr); }
+	.df-split--media-first-mobile > :last-child { order: 0; }
+	.df-split--reverse > :first-child { order: 2; }
+}
+
+.df-gap-0  { --df-grid-gap: 0px; gap: 0; }
+.df-gap-s  { --df-grid-gap: var(--wp--preset--spacing--30, .75rem); gap: var(--df-grid-gap); }
+.df-gap-m  { --df-grid-gap: var(--wp--preset--spacing--50, 2rem); gap: var(--df-grid-gap); }
+.df-gap-l  { --df-grid-gap: var(--wp--preset--spacing--60, 3rem); gap: var(--df-grid-gap); }
+.df-gap-xl { --df-grid-gap: var(--wp--preset--spacing--70, 5rem); gap: var(--df-grid-gap); }
+
+/* Alignment (after .df-split / .df-cluster so they win). */
+.df-between      { justify-content: space-between; }
+.df-items-center { align-items: center; }
+.df-items-start  { align-items: start; }
+
+.df-text-center { text-align: center; }
+.df-text-center .df-actions,
+.df-text-center.df-actions,
+.df-text-center .df-cluster { justify-content: center; }
+.df-scroll-x { overflow-x: auto; -webkit-overflow-scrolling: touch; } /* wide tables */
+.df-list-reset { list-style: none; margin: 0; padding: 0; } /* <ul> used as grid/stack (add role="list") */
+
+/* ---------- Type (theme.json font sizes) ---------- */
+.df-text-small   { font-size: var(--wp--preset--font-size--small, .875rem); }
+.df-text-base,
+.df-text-medium  { font-size: var(--wp--preset--font-size--medium, 1.0625rem); }
+.df-text-large   { font-size: var(--wp--preset--font-size--large, 1.375rem); }
+.df-text-xl      { font-size: var(--wp--preset--font-size--x-large, 1.875rem); }
+.df-text-2xl     { font-size: var(--wp--preset--font-size--xx-large, 2.625rem); }
+.df-text-display { font-size: var(--wp--preset--font-size--display, 3.75rem); line-height: 1.05; }
+.df-font-heading { font-family: var(--df-font-heading); }
+.df-font-body    { font-family: var(--df-font-body); }
+.df-hyphens      { -webkit-hyphens: auto; hyphens: auto; overflow-wrap: break-word; } /* needs <html lang="de"> */
+
+/* ---------- Media ---------- */
+.df-ratio-1x1  { --df-ratio: 1 / 1; }
+.df-ratio-4x3  { --df-ratio: 4 / 3; }
+.df-ratio-3x2  { --df-ratio: 3 / 2; }
+.df-ratio-16x9 { --df-ratio: 16 / 9; }
+:is(.df-ratio-1x1, .df-ratio-4x3, .df-ratio-3x2, .df-ratio-16x9) { position: relative; aspect-ratio: var(--df-ratio); overflow: hidden; }
+:is(.df-ratio-1x1, .df-ratio-4x3, .df-ratio-3x2, .df-ratio-16x9) :is(img, picture, video, iframe) {
+	display: block; width: 100%; height: 100%; object-fit: cover;
+}
+
+/* Background image layer (hero): first child of a positioned box (.df-section is), the following
+ * siblings sit above it. Overlay strength: --df-overlay (share of the scheme background). */
+.df-cover-bg { position: absolute; inset: 0; z-index: 0; overflow: hidden; }
+.df-cover-bg :is(img, picture, video) { display: block; width: 100%; height: 100%; object-fit: cover; }
+.df-cover-bg::after { content: ""; position: absolute; inset: 0; background: color-mix(in srgb, var(--df-bg) var(--df-overlay, 60%), transparent); }
+.df-cover-bg ~ * { position: relative; z-index: 1; }
+
+/* ---------- Surfaces ---------- */
+.df-card {
+	padding: var(--df-card-pad, var(--wp--preset--spacing--50, 2rem));
+	border: 1px solid var(--df-border, transparent);
+	border-radius: var(--df-radius);
+	background: var(--df-surface, transparent);
+	color: inherit;
+}
+.df-card--shadow { border-color: transparent; box-shadow: var(--df-shadow); }
+.df-card > .df-frame:first-child,
+.df-card > :is(.df-ratio-1x1, .df-ratio-4x3, .df-ratio-3x2, .df-ratio-16x9):first-child {
+	margin: calc(-1 * var(--df-card-pad, var(--wp--preset--spacing--50, 2rem))) calc(-1 * var(--df-card-pad, var(--wp--preset--spacing--50, 2rem))) var(--wp--preset--spacing--40, 1rem);
+	border-radius: var(--df-radius) var(--df-radius) 0 0;
+}
+.df-surface-alt { background: var(--df-surface); }
+
+/* ---------- Visibility (decorative content only, never hide real content) ---------- */
+@media (max-width: 47.99em) {
+	.df-hide-mobile { display: none !important; }
+	/* Mobile default: buttons stacked full width. */
+	.df-actions > * { flex: 1 1 100%; }
+}
+@media (min-width: 48em) {
+	.df-hide-desktop { display: none !important; }
+}
 
 /* ---------- Accessibility ---------- */
 .df-section :is(a, button, summary, [tabindex]):focus-visible {

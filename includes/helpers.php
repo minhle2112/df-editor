@@ -65,16 +65,6 @@ function df_has_layout( ?int $post_id = null ): bool {
 }
 
 /**
- * Whether a post contains DF section blocks ("df/<type>", prototype, see docs/BLOCKS.md).
- * Such pages are rendered full-bleed like DF layout pages (the sections bring their own container).
- *
- * @param int|WP_Post|null $post Post (current post when null).
- */
-function df_has_df_blocks( $post = null ): bool {
-	return DF_Blocks::has_df_blocks( $post );
-}
-
-/**
  * A DF Editor setting (Settings > DF Editor): honeypot, consent_tool, disable_inline_editing.
  */
 function df_editor_setting( string $key ) {

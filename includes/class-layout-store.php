@@ -144,7 +144,7 @@ final class DF_Layout_Store {
 	 * Publishes a layout: the previous live layout goes into the history, rev + 1, the
 	 * plain-text fallback is regenerated and page caches are purged.
 	 *
-	 * Used by the layout metabox, `wp df import` and the block converter.
+	 * Used by the layout metabox and `wp df import`.
 	 *
 	 * @param array $args fallback (bool, default true), overwrite_content (bool), user_id (int).
 	 * @return array{ok: bool, rev: int, fallback: string}

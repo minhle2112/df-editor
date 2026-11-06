@@ -6,8 +6,6 @@
  * - consent_tool    none|borlabs|real-cookie-banner|complianz (stored only; used by video/map sections)
  * - inline editing  mirrors option df_inhalt_disabled (the DF Inhalt master switch)
  * - placeholder     shows df_placeholder_image_id, "Regenerate" button
- * - section_blocks  on (default): DF sections can be inserted as Gutenberg blocks;
- *                   off: front-end-only workflow (layout by the agency, texts via DF Inhalt)
  *
  * @package DF_Editor
  */
@@ -31,9 +29,8 @@ final class DF_Settings {
 
 	public static function defaults(): array {
 		return array(
-			'honeypot'       => 1,
-			'consent_tool'   => 'none',
-			'section_blocks' => 1,
+			'honeypot'     => 1,
+			'consent_tool' => 'none',
 		);
 	}
 
@@ -74,7 +71,6 @@ final class DF_Settings {
 		add_settings_field( 'df_editor_inline', __( 'Inline editing', 'df-editor' ), array( __CLASS__, 'field_inline' ), self::PAGE, 'df_editor_main', array( 'label_for' => 'df-editor-disable-inline' ) );
 		add_settings_field( 'df_editor_honeypot', __( 'Form spam protection', 'df-editor' ), array( __CLASS__, 'field_honeypot' ), self::PAGE, 'df_editor_main', array( 'label_for' => 'df-editor-honeypot' ) );
 		add_settings_field( 'df_editor_consent', __( 'Consent tool', 'df-editor' ), array( __CLASS__, 'field_consent' ), self::PAGE, 'df_editor_main', array( 'label_for' => 'df-editor-consent' ) );
-		add_settings_field( 'df_editor_section_blocks', __( 'Gutenberg', 'df-editor' ), array( __CLASS__, 'field_section_blocks' ), self::PAGE, 'df_editor_main', array( 'label_for' => 'df-editor-section-blocks' ) );
 	}
 
 	/**
@@ -83,9 +79,8 @@ final class DF_Settings {
 	public static function sanitize( $input ): array {
 		$input = is_array( $input ) ? $input : array();
 		$clean = array(
-			'honeypot'       => empty( $input['honeypot'] ) ? 0 : 1,
-			'consent_tool'   => in_array( $input['consent_tool'] ?? '', self::CONSENT_TOOLS, true ) ? $input['consent_tool'] : 'none',
-			'section_blocks' => empty( $input['section_blocks'] ) ? 0 : 1,
+			'honeypot'     => empty( $input['honeypot'] ) ? 0 : 1,
+			'consent_tool' => in_array( $input['consent_tool'] ?? '', self::CONSENT_TOOLS, true ) ? $input['consent_tool'] : 'none',
 		);
 		// Only from our form (the hidden marker), never from a programmatic update_option().
 		if ( isset( $input['_form'] ) && current_user_can( self::CAP ) ) {
@@ -126,16 +121,6 @@ final class DF_Settings {
 		}
 		echo '</select>';
 		printf( '<p class="description">%s</p>', esc_html__( 'Used by sections that load third-party content (video, map) to show a two-click consent first.', 'df-editor' ) );
-	}
-
-	public static function field_section_blocks(): void {
-		printf(
-			'<label><input type="checkbox" id="df-editor-section-blocks" name="%1$s[section_blocks]" value="1"%2$s> %3$s</label><p class="description">%4$s</p>',
-			esc_attr( self::OPTION ),
-			checked( (int) self::get( 'section_blocks' ), 1, false ),
-			esc_html__( 'Section blocks in Gutenberg', 'df-editor' ),
-			esc_html__( 'Off = front-end workflow: the agency builds the layout, clients edit texts and images on the page with DF Inhalt. Pages that already use section blocks keep rendering; new section blocks can no longer be inserted.', 'df-editor' )
-		);
 	}
 
 	public static function render(): void {
