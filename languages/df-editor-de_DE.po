@@ -50,3 +50,41 @@ msgstr "Dezent"
 #: includes/class-design.php:102
 msgid "Normal"
 msgstr "Normal"
+
+#: includes/class-viewport.php
+msgid "View"
+msgstr "Ansicht"
+
+#: includes/class-viewport.php
+msgid "Desktop"
+msgstr "Desktop"
+
+#: includes/class-viewport.php
+msgid "Tablet"
+msgstr "Tablet"
+
+#: includes/class-viewport.php
+msgid "Mobile"
+msgstr "Smartphone"
+
+#: includes/class-viewport.php
+msgid "Rotate"
+msgstr "Drehen"
+
+#: includes/class-viewport.php
+msgid "Device preview"
+msgstr "Geräte-Vorschau"
+
+#: includes/class-viewport.php
+msgid "Resize preview"
+msgstr "Vorschaubreite ändern"
+
+#: includes/class-viewport.php
+msgid "Drag to resize, double-click to reset"
+msgstr "Ziehen ändert die Breite, Doppelklick setzt sie zurück"
+
+#. translators: %s: preview width in pixels.
+#: includes/class-viewport.php
+#, php-format
+msgid "%s px"
+msgstr "%s px"

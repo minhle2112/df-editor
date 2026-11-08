@@ -570,6 +570,7 @@ html.df-edit-active:not(.df-inhalt-media-open) body [data-df-managed] {
 	}
 
 	.df-inhalt-popup {
+		top: auto !important;
 		right: 12px !important;
 		bottom: 76px !important;
 		left: 12px !important;

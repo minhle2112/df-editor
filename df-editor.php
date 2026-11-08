@@ -2,8 +2,8 @@
 /**
  * Plugin Name:       DF Editor
  * Description:       Page layouts from theme sections, CSS framework and front-end content editing (DF Inhalt) by Digitale Formate.
- * Version:           1.0.0
- * Requires at least: 6.4
+ * Version:           1.1.0
+ * Requires at least: 6.5
  * Requires PHP:      8.0
  * Author:            Digitale Formate
  * License:           GPL-2.0-or-later
@@ -17,7 +17,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'DF_EDITOR_VERSION', '1.0.0' );
+define( 'DF_EDITOR_VERSION', '1.1.0' );
 define( 'DF_EDITOR_FILE', __FILE__ );
 define( 'DF_EDITOR_DIR', plugin_dir_path( __FILE__ ) );
 define( 'DF_EDITOR_URL', plugin_dir_url( __FILE__ ) );
@@ -45,6 +45,7 @@ require_once DF_EDITOR_DIR . 'includes/class-customizer.php';
 require_once DF_EDITOR_DIR . 'includes/class-settings.php';
 require_once DF_EDITOR_DIR . 'includes/class-upgrade.php';
 require_once DF_EDITOR_DIR . 'includes/class-updater.php';
+require_once DF_EDITOR_DIR . 'includes/class-viewport.php';
 require_once DF_EDITOR_DIR . 'includes/helpers.php';
 
 // Section template helpers and icons: after the theme's functions.php, so a theme's own version wins.
@@ -91,6 +92,7 @@ DF_Setup::init();
 DF_Design::init();
 DF_Customizer::init();
 DF_Updater::init();
+DF_Viewport::init();
 
 add_action(
 	'init',

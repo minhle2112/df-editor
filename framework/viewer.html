@@ -1,0 +1,337 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DF Mockup-Viewer</title>
+<!--
+	DF MOCKUP VIEWER: shows a mockup of this folder full width (Desktop) or shrinks it in place to
+	Tablet (768, landscape 1024) or Mobile (390, landscape 844), like the View switcher of DF Editor 1.1.0+
+	in WordPress (buttons in the DF Inhalt toolbar at the bottom of the page).
+	- Open this file in Chrome/Edge (double click, file:// works). Default page: the first entry of PAGES.
+	- Another page of the same folder: viewer.html?src=leistungen.html (or pick it in the list).
+	  Add your pages to PAGES below so they show up in the list.
+	- Extra URL parameters: view=desktop|tablet|mobile|custom, w=360 (any width), rot=1 (landscape).
+	  Example: viewer.html?src=kontakt.html&view=mobile
+	- Drag the handles left/right of the page to any width (min 320 px); double click = preset width.
+	  Handles also work with the keyboard: arrow keys +/-10 px, Shift +/-50 px, Home/End = min/max.
+	- Esc = Desktop (when the focus is in the viewer, not inside the page).
+	The viewer never reads the page inside the frame (browsers block that on file://); it only sets its size.
+-->
+<style>
+	:root {
+		--v-canvas: #e8e9ed; --v-page: #ffffff; --v-ink: #211a34; --v-muted: #534b6a; --v-muted-rgb: 83, 75, 106;
+		--v-ink-rgb: 33, 26, 52; --v-panel-rgb: 253, 252, 254; --v-accent: #7c3aed; --v-on-accent: #fff; --v-focus: #7c3aed;
+		--v-ease: cubic-bezier(.2, .7, .2, 1); --v-dur: 400ms;
+		color-scheme: light;
+	}
+	* { box-sizing: border-box; }
+	html, body { height: 100%; margin: 0; overflow: hidden; }
+	body { background: var(--v-page); color: var(--v-ink); font: 14px/1.4 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+	.v-sr { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+
+	/* Stage = the whole window; the page box sits centred in it and shrinks / grows in place. */
+	.v-stage { position: fixed; inset: 0; overflow: hidden; background: var(--v-page); transition: background-color var(--v-dur) var(--v-ease); }
+	.v-narrow .v-stage { background: var(--v-canvas); }
+	.v-box { position: absolute; top: 0; bottom: 0; left: 50%; transform: translateX(-50%); transition: width var(--v-dur) var(--v-ease); }
+	.v-canvas { position: absolute; top: 0; left: 0; overflow: hidden; background: #fff; transform-origin: 0 0; box-shadow: 0 0 0 rgba(0, 0, 0, 0);
+		transition: width var(--v-dur) var(--v-ease), height var(--v-dur) var(--v-ease), transform var(--v-dur) var(--v-ease), box-shadow var(--v-dur) var(--v-ease); }
+	.v-narrow .v-canvas { box-shadow: 0 2px 6px rgba(0, 0, 0, .06), 0 12px 40px rgba(0, 0, 0, .12); }
+	.v-canvas iframe { display: block; height: 100%; border: 0; background: #fff; }
+
+	/* Drag handles (outside the page box, vertically centred). */
+	.v-handle { position: absolute; top: 50%; z-index: 2; width: 18px; height: 72px; margin-top: -36px; padding: 0; border: 0; border-radius: 9px;
+		background: transparent; cursor: ew-resize; touch-action: none; opacity: 0; visibility: hidden; transition: opacity 200ms ease, visibility 0s 200ms; }
+	.v-handle::before { content: ""; position: absolute; top: 14px; bottom: 14px; left: 7px; width: 4px; border-radius: 2px; background: var(--v-muted); transition: background-color 120ms ease; }
+	.v-handle:hover::before, .v-handle:focus-visible::before, .v-dragging .v-handle::before { background: var(--v-accent); }
+	.v-handle--l { left: -22px; }
+	.v-handle--r { right: -22px; }
+	.v-handle:focus-visible { outline: 2px solid var(--v-focus); outline-offset: 2px; }
+	.v-narrow .v-handle { opacity: 1; visibility: visible; transition: opacity 200ms ease; }
+	.v-shield { position: absolute; inset: 0; z-index: 3; display: none; cursor: ew-resize; }
+	.v-dragging .v-shield { display: block; }
+	.v-dragging, .v-dragging * { user-select: none; }
+
+	/* Width label at the top of the page box. */
+	.v-size { position: absolute; top: 10px; left: 50%; z-index: 4; padding: 3px 10px; border-radius: 999px; background: rgba(var(--v-ink-rgb), .82); color: #fff;
+		font-size: 12px; font-variant-numeric: tabular-nums; white-space: nowrap; transform: translateX(-50%); opacity: 0; pointer-events: none; transition: opacity 200ms ease; }
+	.v-size.is-on { opacity: 1; }
+
+	/* Floating pill at the bottom centre (same feel as the DF Inhalt toolbar). */
+	.v-pill { position: fixed; bottom: 22px; left: 0; right: 0; z-index: 10; width: max-content; margin: 0 auto; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 4px;
+		max-width: calc(100% - 32px); padding: 4px 6px; border: 1px solid rgba(var(--v-muted-rgb), .18); border-radius: 21px;
+		background: rgba(var(--v-panel-rgb), .82); color: var(--v-ink);
+		box-shadow: 0 16px 38px rgba(var(--v-ink-rgb), .18), 0 2px 8px rgba(var(--v-ink-rgb), .08); -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px); }
+	.v-group { display: flex; align-items: center; gap: 2px; }
+	.v-group + .v-group { padding-left: 6px; margin-left: 2px; border-left: 1px solid rgba(var(--v-muted-rgb), .2); }
+	.v-pill button, .v-pill a, .v-pill select, .v-pill input { appearance: none; display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+		height: 32px; min-width: 32px; margin: 0; padding: 0 8px; border: 0; border-radius: 999px; background: transparent; color: inherit; font: inherit; font-size: 13px;
+		line-height: 1; text-decoration: none; cursor: pointer; }
+	.v-pill button:hover, .v-pill a:hover, .v-pill select:hover { background: rgba(127, 127, 127, .16); }
+	.v-pill button[aria-pressed="true"] { background: var(--v-accent); color: var(--v-on-accent); }
+	.v-pill button[hidden] { display: none; }
+	.v-pill select { max-width: 12em; padding-right: 22px; background: transparent url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%23534b6a' stroke-width='1.6'/%3E%3C/svg%3E") no-repeat right 8px center; }
+	.v-pill input { width: 5.2em; padding: 0 6px; border: 1px solid rgba(var(--v-muted-rgb), .28); background: #fff; cursor: text; text-align: right; -moz-appearance: textfield; }
+	.v-pill input::-webkit-inner-spin-button { display: none; }
+	.v-unit { color: var(--v-muted); font-size: 12px; padding-right: 4px; }
+	.v-pill :focus-visible { outline: 2px solid var(--v-focus); outline-offset: 1px; }
+	.v-pill svg { display: block; flex: none; width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+	@media (max-width: 40em) { .v-txt { display: none; } .v-pill { bottom: 12px; } }
+
+	/* Instant changes: first paint, window resize, dragging, reduced motion. */
+	.v-noanim .v-stage, .v-noanim .v-box, .v-noanim .v-canvas, .v-dragging .v-box, .v-dragging .v-canvas { transition: none; }
+	@media (prefers-reduced-motion: reduce) { .v-stage, .v-box, .v-canvas, .v-handle, .v-size { transition: none !important; } }
+	@media print { .v-pill, .v-handle, .v-size { display: none; } }
+</style>
+</head>
+<body class="v-desktop v-noanim">
+<main class="v-stage" id="v-stage">
+	<div class="v-box" id="v-box">
+		<div class="v-canvas" id="v-canvas">
+			<iframe id="v-frame" title="Mockup-Vorschau" src="about:blank"></iframe>
+		</div>
+		<div class="v-handle v-handle--l" id="v-hl" role="separator" aria-orientation="vertical" tabindex="0" aria-label="Vorschaubreite ändern (links)" aria-valuemin="320" aria-valuemax="1280" aria-valuenow="390" title="Ziehen = Breite ändern, Doppelklick = Standardbreite"></div>
+		<div class="v-handle v-handle--r" id="v-hr" role="separator" aria-orientation="vertical" tabindex="0" aria-label="Vorschaubreite ändern (rechts)" aria-valuemin="320" aria-valuemax="1280" aria-valuenow="390" title="Ziehen = Breite ändern, Doppelklick = Standardbreite"></div>
+	</div>
+	<div class="v-size" id="v-size" aria-hidden="true"></div>
+	<div class="v-shield" id="v-shield"></div>
+</main>
+<div class="v-pill" role="toolbar" aria-label="Ansicht">
+	<div class="v-group">
+		<label for="v-src" class="v-sr">Seite</label>
+		<select id="v-src" title="Seite"></select>
+	</div>
+	<div class="v-group" role="group" aria-label="Gerät">
+		<button type="button" data-view="desktop" aria-pressed="true" title="Desktop: volle Fensterbreite">
+			<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="12" rx="1"/><path d="M8 20h8M12 16v4"/></svg><span class="v-txt">Desktop</span></button>
+		<button type="button" data-view="tablet" aria-pressed="false" title="Tablet: 768 px (quer 1024 px)">
+			<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M11 18h2"/></svg><span class="v-txt">Tablet</span></button>
+		<button type="button" data-view="mobile" aria-pressed="false" title="Mobil: 390 px (quer 844 px)">
+			<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="7" y="2" width="10" height="20" rx="2"/><path d="M11 18h2"/></svg><span class="v-txt">Mobil</span></button>
+		<button type="button" id="v-rot" aria-pressed="false" title="Hoch- / Querformat" hidden>
+			<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 0 1 15.5-6.2L21 8M21 3v5h-5M21 12a9 9 0 0 1-15.5 6.2L3 16M3 21v-5h5"/></svg><span class="v-sr">Drehen</span></button>
+	</div>
+	<div class="v-group">
+		<label for="v-w" class="v-sr">Breite in Pixel</label>
+		<input id="v-w" type="number" min="320" max="2560" step="1" inputmode="numeric" placeholder="Breite" title="Beliebige Breite (Enter)"><span class="v-unit" aria-hidden="true">px</span>
+	</div>
+	<div class="v-group">
+		<button type="button" id="v-reload" title="Seite neu laden">
+			<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12a9 9 0 1 1-2.6-6.4L21 8M21 3v5h-5"/></svg><span class="v-sr">Neu laden</span></button>
+		<a id="v-open" href="mockup-starter.html" target="_blank" rel="noopener" title="Seite ohne Viewer öffnen">
+			<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg><span class="v-sr">Öffnen</span></a>
+	</div>
+	<output id="v-live" class="v-sr" aria-live="polite"></output>
+</div>
+<script>
+( function () {
+	'use strict';
+	// Pages of this mockup folder shown in the list; the first one opens by default.
+	// After renaming mockup-starter.html put the new file names here.
+	var PAGES = [ 'mockup-starter.html' ];
+	// Preset widths [portrait, landscape]; the height is always the full window.
+	var SIZES = { tablet: [ 768, 1024 ], mobile: [ 390, 844 ] };
+	var MIN = 320, MAX_INPUT = 2560, GUTTER = 28, KEY = 'df-mockup-viewer';
+	var $ = function ( id ) { return document.getElementById( id ); };
+	var body = document.body, stage = $( 'v-stage' ), box = $( 'v-box' ), canvas = $( 'v-canvas' ), frame = $( 'v-frame' );
+	var sel = $( 'v-src' ), rotBtn = $( 'v-rot' ), wIn = $( 'v-w' ), sizeEl = $( 'v-size' ), live = $( 'v-live' ), open = $( 'v-open' );
+	var handles = [ $( 'v-hl' ), $( 'v-hr' ) ];
+	var viewBtns = [].slice.call( document.querySelectorAll( '[data-view]' ) );
+	// view: desktop | tablet | mobile | custom; w: own width (0 = preset of the view); rot: landscape.
+	var state = { src: PAGES[ 0 ], view: 'desktop', rot: false, w: 0 };
+	var sizeTimer = 0, cur = { w: 0, scale: 1 };
+
+	// Width of a classic desktop scrollbar. Narrow views make the frame that much wider and the page
+	// box (overflow hidden) clips the scrollbar, so the page lays out at exactly 390 / 768 px like on a
+	// phone with overlay scrollbars. The viewer cannot hide the scrollbar inside the page itself (no
+	// access to the frame on file://), so this is still needed. Media queries and 100vw see w + sb.
+	var sb = ( function () {
+		var d = document.createElement( 'div' );
+		d.style.cssText = 'position:absolute;top:-999px;width:100px;height:100px;overflow:scroll';
+		document.body.appendChild( d );
+		var w = d.offsetWidth - d.clientWidth;
+		d.remove();
+		return w;
+	} )();
+
+	// Only plain relative .html files of this folder (or its sub folders).
+	function cleanSrc( s ) {
+		s = String( s || '' ).trim();
+		return /^(?!\/)(?!.*\.\.)(?!.*:)[\w\-.\/]+\.html?$/i.test( s ) ? s : '';
+	}
+	function store() {
+		try { sessionStorage.setItem( KEY, JSON.stringify( state ) ); } catch ( e ) {}
+		var q = '?src=' + encodeURIComponent( state.src ) + '&view=' + state.view +
+			( state.w && state.view !== 'desktop' ? '&w=' + state.w : '' ) + ( state.rot && SIZES[ state.view ] ? '&rot=1' : '' );
+		try { history.replaceState( null, '', q ); } catch ( e ) {}
+	}
+	function load() {
+		try {
+			var s = JSON.parse( sessionStorage.getItem( KEY ) || 'null' );
+			if ( s && typeof s === 'object' ) {
+				state.view = /^(desktop|tablet|mobile|custom)$/.test( s.view ) ? s.view : state.view;
+				state.rot = !! s.rot; state.w = Math.round( +s.w ) || 0; state.src = cleanSrc( s.src ) || state.src;
+			}
+		} catch ( e ) {}
+		var p = new URLSearchParams( location.search || location.hash.slice( 1 ) );
+		var pv = p.get( 'view' ) || '';
+		if ( cleanSrc( p.get( 'src' ) ) ) { state.src = cleanSrc( p.get( 'src' ) ); }
+		if ( /^(desktop|tablet|mobile|custom)$/.test( pv ) ) { state.view = pv; state.w = 0; }
+		if ( p.has( 'rot' ) ) { state.rot = p.get( 'rot' ) === '1'; }
+		if ( +p.get( 'w' ) ) {
+			state.w = Math.round( +p.get( 'w' ) );
+			if ( ! SIZES[ pv ] ) { state.view = 'custom'; }
+		}
+		if ( state.view === 'desktop' ) { state.w = 0; }
+		if ( state.w && ! ( state.w >= MIN && state.w <= MAX_INPUT ) ) { state.w = 0; }
+		if ( state.view === 'custom' && ! state.w ) { state.view = 'desktop'; }
+	}
+	function fillList() {
+		var list = PAGES.slice();
+		if ( list.indexOf( state.src ) < 0 ) { list.push( state.src ); }
+		sel.innerHTML = '';
+		list.forEach( function ( p ) { var o = document.createElement( 'option' ); o.value = o.textContent = p; sel.appendChild( o ); } );
+		sel.value = state.src;
+	}
+	function setSrc( reload ) {
+		open.href = state.src;
+		if ( reload || frame.getAttribute( 'src' ) !== state.src ) { frame.setAttribute( 'src', state.src ); }
+	}
+
+	function preset() { var s = SIZES[ state.view ]; return s ? s[ state.rot ? 1 : 0 ] : 0; }
+	function target() { return state.view === 'desktop' ? 0 : ( state.w || preset() ); }
+	function availW() { return Math.max( MIN, stage.clientWidth - 2 * GUTTER ); }
+	function maxW() { return Math.max( MIN, Math.min( MAX_INPUT, availW() ) ); }
+	function labelText() {
+		if ( state.view === 'desktop' ) { return 'Desktop · ' + stage.clientWidth + ' px'; }
+		return cur.w + ' px' + ( cur.scale < 1 ? ' · ' + Math.round( cur.scale * 100 ) + '%' : '' ) + ( sb ? ' · MQ ' + ( cur.w + sb ) + ' px' : '' );
+	}
+	function showSize( stay ) {
+		sizeEl.textContent = labelText();
+		sizeEl.classList.add( 'is-on' );
+		clearTimeout( sizeTimer );
+		if ( ! stay ) { sizeTimer = setTimeout( function () { sizeEl.classList.remove( 'is-on' ); }, 1600 ); }
+	}
+
+	// Sizes the page box. Desktop = full window; narrow = target width, scaled down when it is wider
+	// than the window, always the full window height.
+	function layout() {
+		var v = state.view, narrow = v !== 'desktop', W = stage.clientWidth, H = stage.clientHeight, w = W, scale = 1;
+		if ( narrow ) {
+			w = target();
+			scale = Math.min( 1, availW() / w );
+		}
+		cur.w = w; cur.scale = scale;
+		body.classList.toggle( 'v-desktop', ! narrow );
+		body.classList.toggle( 'v-narrow', narrow );
+		viewBtns.forEach( function ( b ) { b.setAttribute( 'aria-pressed', b.getAttribute( 'data-view' ) === v ? 'true' : 'false' ); } );
+		rotBtn.hidden = ! SIZES[ v ];
+		rotBtn.setAttribute( 'aria-pressed', SIZES[ v ] && state.rot ? 'true' : 'false' );
+		box.style.width = Math.round( w * scale ) + 'px';
+		canvas.style.width = w + 'px';
+		canvas.style.height = ( H / scale ) + 'px';
+		canvas.style.transform = 'scale(' + scale + ')';
+		frame.style.width = narrow ? 'calc(100% + ' + sb + 'px)' : '100%';
+		handles.forEach( function ( h ) {
+			h.setAttribute( 'aria-valuenow', narrow ? w : W );
+			h.setAttribute( 'aria-valuemax', maxW() );
+			h.setAttribute( 'aria-valuetext', labelText() );
+		} );
+		if ( document.activeElement !== wIn ) { wIn.value = narrow && ( state.w || v === 'custom' ) ? w : ''; }
+	}
+	function announce() { live.value = labelText(); }
+	function setView( v, focusBtn ) {
+		state.view = v;
+		state.w = v === 'custom' ? state.w : 0;
+		layout(); store(); showSize(); announce();
+		if ( focusBtn ) { var b = document.querySelector( '[data-view="' + v + '"]' ); if ( b ) { b.focus(); } }
+	}
+	// Own width: keeps Tablet / Mobile as the base view (double click goes back to its preset);
+	// from Desktop it becomes the "custom" view.
+	function setWidth( n, stay ) {
+		n = Math.round( Math.max( MIN, Math.min( n, MAX_INPUT ) ) );
+		if ( state.view === 'desktop' ) { state.view = 'custom'; }
+		state.w = n === preset() ? 0 : n;
+		layout(); store(); showSize( stay );
+	}
+	function instant( fn ) {
+		body.classList.add( 'v-noanim' );
+		fn();
+		void canvas.offsetWidth;
+		requestAnimationFrame( function () { requestAnimationFrame( function () { body.classList.remove( 'v-noanim' ); } ); } );
+	}
+
+	// Drag handles: symmetric, centred; pointer capture + shield over the iframe while dragging.
+	handles.forEach( function ( h, i ) {
+		var sign = i === 0 ? -1 : 1, x0 = 0, w0 = 0, id = null;
+		h.addEventListener( 'pointerdown', function ( e ) {
+			if ( e.button !== 0 || state.view === 'desktop' ) { return; }
+			e.preventDefault();
+			id = e.pointerId; x0 = e.clientX; w0 = Math.round( cur.w * cur.scale );
+			try { h.setPointerCapture( id ); } catch ( err ) {}
+			body.classList.add( 'v-dragging' );
+			h.focus( { preventScroll: true } );
+			showSize( true );
+		} );
+		h.addEventListener( 'pointermove', function ( e ) {
+			if ( id !== e.pointerId ) { return; }
+			setWidth( Math.min( maxW(), w0 + 2 * sign * ( e.clientX - x0 ) ), true );
+		} );
+		function end( e ) {
+			if ( id === null || ( e && e.pointerId !== id ) ) { return; }
+			try { h.releasePointerCapture( id ); } catch ( err ) {}
+			id = null;
+			body.classList.remove( 'v-dragging' );
+			showSize(); announce();
+		}
+		h.addEventListener( 'pointerup', end );
+		h.addEventListener( 'pointercancel', end );
+		h.addEventListener( 'lostpointercapture', end );
+		h.addEventListener( 'dblclick', function () {
+			if ( ! SIZES[ state.view ] ) { return; }
+			state.w = 0; layout(); store(); showSize(); announce();
+		} );
+		h.addEventListener( 'keydown', function ( e ) {
+			var step = e.shiftKey ? 50 : 10, d = 0, n = null;
+			if ( state.view === 'desktop' ) { return; }
+			if ( e.key === 'ArrowUp' ) { d = step; } else if ( e.key === 'ArrowDown' ) { d = -step; }
+			else if ( e.key === 'ArrowRight' ) { d = sign * step; } else if ( e.key === 'ArrowLeft' ) { d = -sign * step; }
+			else if ( e.key === 'Home' ) { n = MIN; } else if ( e.key === 'End' ) { n = maxW(); }
+			else if ( e.key === 'Enter' && SIZES[ state.view ] ) { state.w = 0; layout(); store(); showSize(); announce(); e.preventDefault(); return; }
+			else { return; }
+			e.preventDefault();
+			setWidth( n !== null ? n : Math.min( maxW(), Math.max( MIN, cur.w + d ) ) );
+			announce();
+		} );
+	} );
+
+	viewBtns.forEach( function ( b ) { b.addEventListener( 'click', function () { setView( b.getAttribute( 'data-view' ) ); } ); } );
+	rotBtn.addEventListener( 'click', function () { state.rot = ! state.rot; state.w = 0; layout(); store(); showSize(); announce(); } );
+	wIn.addEventListener( 'change', function () {
+		var n = Math.round( +wIn.value );
+		if ( n >= MIN && n <= MAX_INPUT ) { setWidth( n ); announce(); }
+		else if ( ! wIn.value ) { setView( state.view === 'custom' ? 'desktop' : state.view ); }
+		else { layout(); }
+	} );
+	wIn.addEventListener( 'keydown', function ( e ) { if ( e.key === 'Enter' ) { wIn.dispatchEvent( new Event( 'change' ) ); } } );
+	sel.addEventListener( 'change', function () { state.src = cleanSrc( sel.value ) || state.src; setSrc(); store(); } );
+	$( 'v-reload' ).addEventListener( 'click', function () { setSrc( true ); } );
+	document.addEventListener( 'keydown', function ( e ) {
+		if ( e.key !== 'Escape' || state.view === 'desktop' || e.defaultPrevented ) { return; }
+		if ( e.target === sel && selOpen() ) { return; }
+		e.preventDefault();
+		setView( 'desktop', true );
+	} );
+	function selOpen() { try { return sel.matches( ':open' ); } catch ( err ) { return false; } }
+	window.addEventListener( 'resize', function () { instant( layout ); } );
+
+	load();
+	fillList();
+	instant( layout );
+	setSrc();
+	store();
+	if ( state.view !== 'desktop' ) { showSize(); }
+} )();
+</script>
+</body>
+</html>

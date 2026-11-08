@@ -19,8 +19,11 @@
 	4. Extra CSS only in the <style> block below, only with tokens / --df-* variables, grouped per section
 	   (/* section: hero */ …). That block later becomes df-sections/<type>/style.css. No inline styles
 	   except the documented custom properties (--df-ratio, --df-split-cols, --df-overlay, --df-grid-min).
-	5. Mobile defaults (when the design has none): 1 column, text before image, stacked buttons,
-	   burger menu, nothing hidden. Check at 360, 768 and 1280 px.
+	5. MOBILE FIRST: build and check the 360-390 px version first, then widen (docs/FRAMEWORK.md §5,
+	   "Mobile-first mockups": body text >= 16px, tap targets >= 44px, buttons stacked, burger menu,
+	   text before image, no horizontal scroll at 360 / 320, nothing hidden).
+	   Check every page in viewer.html (same folder): Mobile 390, width 360, Tablet 768 portrait +
+	   landscape, Desktop / width 1280. Other page: viewer.html?src=<page>.html
 	6. Header and footer (data-df-theme) belong to the theme (header.php / footer.php / theme.css), not to sections.
 -->
 <link rel="stylesheet" href="tokens.css">
@@ -28,17 +31,28 @@
 <style>
 	/* theme: header + footer (-> theme header.php / footer.php / assets/css/theme.css) */
 	.mk-header { position: sticky; top: 0; z-index: 10; border-bottom: 1px solid var(--df-border); }
-	.mk-logo { font-family: var(--df-font-heading); font-weight: 700; font-size: var(--wp--preset--font-size--large); color: inherit; text-decoration: none; }
+	.mk-header > .df-container { flex-wrap: wrap; }
+	.mk-logo { flex: 1 1 0; min-width: 0; display: inline-flex; align-items: center; min-height: 2.75rem; font-family: var(--df-font-heading); font-weight: 700; font-size: var(--wp--preset--font-size--large); color: inherit; text-decoration: none; }
 	.mk-nav { display: none; flex-basis: 100%; }
 	.mk-nav.is-open { display: block; }
-	.mk-nav a:not(.df-btn) { color: inherit; text-decoration: none; padding-block: var(--wp--preset--spacing--20); display: block; }
-	.mk-burger { min-height: 2.75rem; padding-inline: var(--wp--preset--spacing--30); background: none; border: 1px solid var(--df-border); border-radius: var(--df-radius); color: inherit; font: inherit; cursor: pointer; }
+	.mk-nav .df-cluster { flex-direction: column; align-items: stretch; gap: 0; }
+	.mk-nav a:not(.df-btn) { color: inherit; text-decoration: none; display: flex; align-items: center; min-height: 2.75rem; }
+	.mk-nav li + li { border-top: 1px solid var(--df-border); }
+	.mk-nav .df-btn { width: 100%; margin-block: var(--wp--preset--spacing--30); }
+	.mk-burger { flex: none; display: inline-flex; align-items: center; gap: var(--wp--preset--spacing--20); min-height: 2.75rem; padding-inline: var(--wp--preset--spacing--30); background: none; border: 1px solid var(--df-border); border-radius: var(--df-radius); color: inherit; font: inherit; cursor: pointer; }
+	.mk-burger::before { content: "\2630"; font-size: 1.25em; line-height: 1; } /* ☰ */
+	.mk-burger[aria-expanded="true"]::before { content: "\2715"; } /* ✕ = visible close */
 	@media (min-width: 48em) {
+		.mk-header > .df-container { flex-wrap: nowrap; }
 		.mk-nav, .mk-nav.is-open { display: block; flex-basis: auto; }
-		.mk-nav .df-cluster { gap: var(--wp--preset--spacing--50); }
+		.mk-nav .df-cluster { flex-direction: row; align-items: center; gap: var(--wp--preset--spacing--50); }
+		.mk-nav li + li { border-top: 0; }
+		.mk-nav .df-btn { width: auto; margin: 0; }
 	}
 	.mk-footer a { color: inherit; }
 	.mk-footer address { font-style: normal; }
+	.mk-footer nav a { display: inline-flex; align-items: center; min-height: 2.75rem; } /* tap target */
+	.mk-footer nav .df-stack { --df-space: 0px; }
 
 	/* section: hero (-> df-sections/hero/style.css) */
 	.df-hero--bild { display: flex; align-items: center; box-sizing: border-box; min-height: 70svh; }
@@ -46,7 +60,10 @@
 
 	/* section: faq (-> df-sections/faq/style.css) */
 	.df-faq__item { border-bottom: 1px solid var(--df-border); }
-	.df-faq__item summary { cursor: pointer; padding-block: var(--wp--preset--spacing--40); font-weight: 600; list-style-position: outside; }
+	.df-faq__item summary { cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: var(--wp--preset--spacing--30); min-height: 2.75rem; padding-block: var(--wp--preset--spacing--40); font-weight: 600; list-style: none; }
+	.df-faq__item summary::-webkit-details-marker { display: none; }
+	.df-faq__item summary::after { content: "+"; flex: none; font-size: 1.5em; line-height: 1; color: var(--df-accent); } /* marker inside the box: never in the gutter on phones */
+	.df-faq__item[open] summary::after { content: "\2212"; }
 	.df-faq__item > div { padding-block-end: var(--wp--preset--spacing--40); }
 </style>
 </head>
@@ -56,7 +73,7 @@
 <header class="df-section df-scheme-hell df-pt-s df-pb-s mk-header" data-df-theme="header">
 	<div class="df-container df-cluster df-between">
 		<a class="mk-logo" href="#">Muster Haustechnik</a>
-		<button class="mk-burger df-hide-desktop" type="button" aria-expanded="false" aria-controls="mk-nav">Menü</button>
+		<button class="mk-burger df-hide-desktop" type="button" aria-expanded="false" aria-controls="mk-nav" data-label-open="Menü" data-label-close="Schließen"><span>Menü</span></button>
 		<nav id="mk-nav" class="mk-nav" aria-label="Hauptnavigation">
 			<ul class="df-list-reset df-cluster">
 				<li><a href="#leistungen">Leistungen</a></li>
@@ -217,12 +234,21 @@
 </footer>
 
 <script>
-	// Mockup only: burger menu (the theme ships its own assets/js/theme.js).
-	document.querySelector('.mk-burger').addEventListener('click', function () {
-		var nav = document.getElementById('mk-nav');
-		var open = nav.classList.toggle('is-open');
-		this.setAttribute('aria-expanded', open ? 'true' : 'false');
-	});
+	// Mockup only: burger menu (the theme ships its own assets/js/theme.js with the same behaviour).
+	// Disclosure menu: visible close (✕ + "Schließen"), Esc closes, a chosen link closes, focus leaving the header closes.
+	( function () {
+		var btn = document.querySelector( '.mk-burger' ), nav = document.getElementById( 'mk-nav' ), header = btn.closest( 'header' );
+		function setOpen( open ) {
+			nav.classList.toggle( 'is-open', open );
+			btn.setAttribute( 'aria-expanded', open ? 'true' : 'false' );
+			btn.firstElementChild.textContent = btn.getAttribute( open ? 'data-label-close' : 'data-label-open' );
+		}
+		var isOpen = function () { return btn.getAttribute( 'aria-expanded' ) === 'true'; };
+		btn.addEventListener( 'click', function () { setOpen( ! isOpen() ); } );
+		document.addEventListener( 'keydown', function ( e ) { if ( e.key === 'Escape' && isOpen() ) { e.preventDefault(); setOpen( false ); btn.focus(); } } );
+		nav.addEventListener( 'click', function ( e ) { if ( e.target.closest( 'a[href]' ) ) { setOpen( false ); } } );
+		header.addEventListener( 'focusout', function ( e ) { if ( isOpen() && e.relatedTarget && ! header.contains( e.relatedTarget ) ) { setOpen( false ); } } );
+	} )();
 </script>
 </body>
 </html>

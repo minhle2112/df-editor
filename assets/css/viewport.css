@@ -1,0 +1,66 @@
+/* DF Editor view switcher (logged-in editors only, see includes/class-viewport.php). */
+.df-view-buttons{display:inline-flex;align-items:center;gap:2px;vertical-align:middle}
+.df-view-btn{appearance:none;position:relative;display:inline-flex;align-items:center;justify-content:center;gap:6px;min-width:32px;height:32px;margin:0;padding:0 7px;border:0;border-radius:6px;background:transparent;color:inherit;font:inherit;font-size:13px;line-height:1;cursor:pointer;box-shadow:none}
+.df-view-btn[hidden]{display:none}
+.df-view-btn:hover{background:rgba(127,127,127,.18)}
+.df-view-btn[aria-pressed="true"]{background:#7c3aed;color:#fff}
+.df-view-btn:focus-visible{outline:2px solid #7c3aed;outline-offset:1px}
+.df-view-btn:disabled{opacity:.4;cursor:not-allowed;background:transparent}
+.df-view-icon{display:block;flex:none;width:18px;height:18px}
+.df-view-rotate{min-width:28px;height:28px;margin-left:2px}
+.df-view-rotate .df-view-icon{width:15px;height:15px}
+/* Loading the preview frame: a pulsing ring on the pressed button. */
+.df-view-btn[aria-busy="true"]::after{content:"";position:absolute;inset:-3px;border:2px solid #a78bfa;border-radius:inherit;animation:df-view-pulse 1s ease-in-out infinite}
+@keyframes df-view-pulse{0%,100%{opacity:.25}50%{opacity:1}}
+
+/* DF Inhalt toolbar. */
+.df-view-buttons--toolbar{padding:0 4px 0 6px;margin-left:2px;border-left:1px solid rgba(83,75,106,.2);color:var(--df-inhalt-ink,#211a34)}
+.df-view-buttons--toolbar .df-view-btn{border-radius:999px}
+/* The edit toggle mirrors edit mode inside the frame (the page below never enters it). */
+html.df-view-edit .df-inhalt-toolbar{border-color:rgba(var(--df-inhalt-accent-rgb),.5);background:rgba(var(--df-inhalt-accent-rgb),.2)}
+html.df-view-edit .df-inhalt-toolbar__select{background:rgba(var(--df-inhalt-accent-rgb),.88);color:var(--df-inhalt-on-accent)}
+html.df-view-edit .df-inhalt-toolbar__select .dashicons{color:currentcolor}
+
+/* Stage over the page: from below the admin bar to the bottom, under the toolbar. */
+html.df-view-on{overflow:hidden}
+/* A classic scrollbar keeps its room while the page is locked: frame and page get the same width. */
+html.df-view-on.df-view-gutter{scrollbar-gutter:stable}
+html.df-view-on #wpadminbar{z-index:2147482995}
+.df-view-stage{--df-view-dur:400ms;--df-view-ease:cubic-bezier(.2,.7,.2,1);position:fixed;top:var(--df-view-top,0px);right:0;bottom:0;left:0;z-index:2147482990;overflow:hidden;background:var(--df-view-page-bg,#fff);opacity:0;pointer-events:none;transition:opacity 120ms ease,background-color var(--df-view-dur) var(--df-view-ease)}
+.df-view-stage.is-shown{opacity:1;pointer-events:auto}
+.df-view-stage.is-narrow{background:#e8e9ec}
+.df-view-canvas{position:absolute;top:0;left:50%;width:100%;height:100%;background:#fff;transform:translateX(-50%) scale(var(--df-view-scale,1));transform-origin:50% 0;transition:width var(--df-view-dur) var(--df-view-ease),transform var(--df-view-dur) var(--df-view-ease),box-shadow var(--df-view-dur) ease}
+.df-view-stage.is-narrow .df-view-canvas{box-shadow:0 0 0 1px rgba(20,22,30,.06),0 10px 40px rgba(20,22,30,.14)}
+.df-view-frame-el{display:block;width:100%;height:100%;max-width:none;margin:0;padding:0;border:0;background:#fff}
+.df-view-stage.is-dragging .df-view-canvas,.df-view-stage.no-anim,.df-view-stage.no-anim .df-view-canvas{transition:none}
+
+/* Drag handles on both sides of the canvas. */
+.df-view-handle{position:absolute;top:50%;width:14px;height:72px;margin-top:-36px;padding:0;border:0;border-radius:7px;background:transparent;cursor:ew-resize;touch-action:none;opacity:0;visibility:hidden;transition:opacity 160ms ease}
+.df-view-handle::before{content:"";position:absolute;top:14px;bottom:14px;left:5px;width:4px;border-radius:2px;background:#6b6e78;transition:background-color 120ms ease}
+.df-view-handle--start{left:-22px}
+.df-view-handle--end{right:-22px}
+.df-view-stage.is-narrow .df-view-handle{opacity:1;visibility:visible}
+.df-view-handle:hover::before,.df-view-handle:focus-visible::before,.df-view-stage.is-dragging .df-view-handle::before{background:#7c3aed}
+.df-view-handle:focus-visible{outline:2px solid #7c3aed;outline-offset:2px}
+
+/* Live width label. */
+.df-view-size{position:absolute;top:10px;left:50%;z-index:2;padding:4px 10px;border-radius:999px;background:rgba(33,26,52,.86);color:#fff;font:600 12px/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;font-variant-numeric:tabular-nums;white-space:nowrap;transform:translateX(-50%);opacity:0;pointer-events:none;transition:opacity 160ms ease}
+.df-view-size.is-visible{opacity:1}
+
+/* While dragging, the iframe must not swallow pointer events. */
+.df-view-shield{position:absolute;inset:0;z-index:1;display:none;cursor:ew-resize}
+.df-view-stage.is-dragging .df-view-shield{display:block}
+
+@media (prefers-reduced-motion:reduce){.df-view-stage,.df-view-canvas,.df-view-handle,.df-view-handle::before,.df-view-size{transition:none}.df-view-btn[aria-busy="true"]::after{animation:none;opacity:1}}
+@media print{.df-view-stage,.df-view-buttons{display:none!important}html.df-view-on{overflow:visible}}
+
+/* Inside the frame: overlay scrollbars like a phone (the layout gets the full width), one toolbar
+   only (the top page's). While the frame (or the page, on the way back) jumps to the scroll
+   position, df-view-instant switches transitions off: DF Motion items in view and e.g. a compact
+   sticky header take their end state at once, so frame and page look the same. */
+html:has(body.df-view-frame){scrollbar-width:none;overflow-anchor:none}
+html:has(body.df-view-frame)::-webkit-scrollbar{display:none}
+.df-view-frame [data-df-toolbar],.df-view-frame .df-inhalt-client-logout{display:none!important}
+html.df-view-instant *,html.df-view-instant *::before,html.df-view-instant *::after{transition:none!important}
+html.df-view-instant .df-view-stage{transition:opacity 120ms ease!important}
+@media (prefers-reduced-motion:reduce){html.df-view-instant .df-view-stage{transition:none!important}}

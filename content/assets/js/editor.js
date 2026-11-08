@@ -457,6 +457,23 @@
 			highlight.hidden = true;
 			status.hidden = true;
 		}
+		document.dispatchEvent( new window.CustomEvent( 'df-inhalt:editmode', { detail: { active } } ) );
+	};
+
+	/*
+	 * Small public API for other scripts (e.g. the view switcher, which drives edit mode inside its
+	 * preview frame): window.dfInhalt.isEditMode() and window.dfInhalt.setEditMode( bool ), which
+	 * returns the new state (unchanged while a save runs). Every change also fires the DOM event
+	 * "df-inhalt:editmode" on document with detail.active.
+	 */
+	window.dfInhalt = {
+		isEditMode: () => active,
+		setEditMode: ( next ) => {
+			if ( ! save.disabled && Boolean( next ) !== active ) {
+				setActive( Boolean( next ) );
+			}
+			return active;
+		},
 	};
 
 	const getSubmittedValue = ( type ) => {
@@ -572,6 +589,8 @@
 			closePopup();
 			setHighlight( savedField );
 			showSaved();
+			// Lets other scripts react to a saved field (e.g. the view switcher frame).
+			document.dispatchEvent( new window.CustomEvent( 'df-inhalt:saved', { detail: { id: savedFieldId } } ) );
 		} catch ( saveError ) {
 			showError( saveError.message );
 		} finally {
@@ -690,7 +709,7 @@
 		modeButtons.forEach( button => { button.disabled = true; } );
 		try {
 			const comment = await commentRequest( window.dfInhaltEditor.commentsUrl, { method: 'POST', body: JSON.stringify( { page_url: window.location.href, page_id: Number( window.dfInhaltEditor.pageId ) || 0, page_title: document.title.slice( 0, 191 ), target: commentTarget, comment: text } ) } );
-			comments.push( comment ); closePopup(); renderMarkers(); showSaved( labels.commentSaved );
+			comments.push( comment ); closePopup(); renderMarkers(); showSaved( labels.commentSaved ); document.dispatchEvent( new window.CustomEvent( 'df-inhalt:saved', { detail: { comment: true } } ) );
 		} catch ( e ) { showError( e.message ); }
 		finally { save.disabled = false; cancel.disabled = false; modeButtons.forEach( button => { button.disabled = false; } ); }
 	};

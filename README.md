@@ -9,6 +9,7 @@ WordPress plugin by **Digitale Formate**: a reusable CSS framework, page layouts
 - **Theme sections**: every section is written per client in `<theme>/df-sections/<type>/` (`section.json` + `section.php` + optional `style.css` / `view.js`), registered from the theme and child theme. The starter theme ships three examples (hero, text & image, cards).
 - **Page layouts as JSON** (post meta `_df_layout`): ordered sections with variant, scheme, spacing, width, options and initial content; CLI import/export/validation, history of 30 revisions, admin metabox, plain-text fallback when the plugin is off.
 - **DF Inhalt**: click-to-edit texts, buttons and images directly on the page, plus page comments, for clients and editors. Clients edit content, the agency changes layouts in code.
+- **View switcher** (1.1.0): Desktop / Tablet / Mobile buttons in the DF Inhalt toolbar at the bottom of the page (not in the admin bar), only where the DF Inhalt toolbar is shown, i.e. for logged-in users who may use DF Inhalt (never visitors; off when DF Inhalt is disabled). Like Elementor's responsive mode, Tablet (768 px) and Mobile (390 px) shrink the page in place with a short animation onto a light grey canvas (real media queries, full window height); Desktop animates back and shows the page at the same scroll position. Rotate button (landscape 1024 / 844 px), drag handles on both sides (also arrow keys, Shift = 50 px, double-click = preset width), live width label, scaled down when the width does not fit. The admin bar and the toolbar stay usable; the toolbar's edit toggle switches DF Inhalt editing (and comments) inside the narrow view, and after a save there the page is reloaded on the way back to Desktop. The view is remembered per browser tab; Esc first closes an open DF Inhalt popup / edit mode in the narrow view, then returns to Desktop (Desktop waits while a popup is open there); no animation with reduced motion. Not in wp-admin, the Customizer preview or section previews. Filter `df_editor_viewport_enabled`.
 - **DF Design**: global colours, fonts, radius, button style and scroll animations in the Customizer, with contrast checks (logo: core Site Identity / Website-Informationen, `custom_logo`).
 - **DF Motion**: optional scroll entrance animations (fade / fade-up with staggered items), switched on in DF Design and declared per section (`section.json` `motion`); off in edit mode, with reduced motion and without JS.
 - **Forms adapter** for Contact Form 7 and Fluent Forms (honeypot, assets only where a form is printed).
@@ -18,7 +19,7 @@ WordPress plugin by **Digitale Formate**: a reusable CSS framework, page layouts
 
 ## Requirements
 
-- WordPress 6.4+ (tested on 7.1)
+- WordPress 6.5+ (tested on 7.1)
 - PHP 8.0+
 - A theme with `theme.json` design tokens and its own `df-sections/` (company starter theme recommended)
 
@@ -58,6 +59,13 @@ php bin/tokens-css.php --framework                       # refresh framework/df-
 - Conventions (section.json schema, field IDs, layout JSON, CLI): `docs/CONVENTIONS.md` in the DF Blocks project; framework classes and mockup workflow: `docs/FRAMEWORK.md`; mockup kit: [`framework/README.md`](framework/README.md).
 - Field IDs (`{page_key}.{instance_id}.{field}`) must never change once published: never rename or delete a field, list or option key of a live section.
 - Releases: push a tag `vX.Y.Z` matching the `Version:` header; the GitHub workflow lints, checks the version and attaches the plugin zip.
+
+## 1.1.0
+
+- New view switcher (`includes/class-viewport.php`, `assets/js/viewport.js`, `assets/css/viewport.css`). The narrow view is an iframe of the same URL with the query flag `?df_view=tablet|mobile` on a stage over the page; the flag only has an effect for users who may use the switcher (no admin bar, no second toolbar inside, body class `df-view-frame`, `nocache_headers()`). The frame is loaded invisibly at full width and scrolled to the page position, then its width is animated; top page and frame talk via `postMessage` (scroll position, edit mode, saves, Esc). sessionStorage keys: `dfView` (view, rotation, width of the tab), `dfViewBack`, `dfViewFrameY`.
+- DF Inhalt: new action `df_inhalt_toolbar` (inside the toolbar, after the edit toggle), DOM events `df-inhalt:saved` (on `document`, after a field is saved or a comment posted) and `df-inhalt:editmode` (detail `active`), and a small API `window.dfInhalt.isEditMode()` / `window.dfInhalt.setEditMode( bool )`.
+- DF Inhalt: on screens up to 600 px the edit popup now sits at the bottom (it stretched over the whole height before).
+- German translation now ships compiled as `languages/df-editor-de_DE.l10n.php` (WordPress 6.5+; `.mo` files are git-ignored). After editing the `.po`, run `wp i18n make-php languages`.
 
 ## Upgrading from 0.x (breaking: 1.0.0)
 

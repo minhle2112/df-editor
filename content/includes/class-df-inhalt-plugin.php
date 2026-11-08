@@ -233,6 +233,12 @@ final class DF_Inhalt_Plugin {
 				<span data-df-toggle-label><?php esc_html_e( 'Open DF Inhalt', 'df-editor' ); ?></span>
 				<span class="dashicons dashicons-edit" aria-hidden="true"></span>
 			</button>
+			<?php
+			/**
+			 * Fires inside the DF Inhalt toolbar, after the edit toggle (e.g. the view switcher).
+			 */
+			do_action( 'df_inhalt_toolbar' );
+			?>
 		</div>
 		<?php if ( DF_Inhalt_Client::clean_admin() ) : ?>
 			<a class="df-inhalt-ui df-inhalt-client-logout" href="<?php echo esc_url( wp_logout_url( DF_Inhalt_Client::logged_out_url() ) ); ?>"><?php esc_html_e( 'Log out', 'df-editor' ); ?></a>
