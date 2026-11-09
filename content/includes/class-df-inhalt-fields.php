@@ -242,14 +242,18 @@ final class DF_Inhalt_Fields {
 	}
 
 	/**
-	 * HTML allowed in rich text fields.
+	 * HTML allowed in rich text fields: paragraphs, h2 / h3 headings, bold, italic, links and lists.
+	 *
+	 * Used for saving and for output, so saved values and layout defaults keep their headings.
 	 *
 	 * @return array<string, array<string, bool>>
 	 */
 	public static function richtext_tags() {
-		return array(
+		$tags = array(
 			'p'      => array(),
 			'br'     => array(),
+			'h2'     => array(),
+			'h3'     => array(),
 			'strong' => array(),
 			'b'      => array(),
 			'em'     => array(),
@@ -259,6 +263,18 @@ final class DF_Inhalt_Fields {
 			'li'     => array(),
 			'a'      => array( 'href' => true ),
 		);
+
+		/**
+		 * Filter the HTML allowed in DF Inhalt rich text (wp_kses format).
+		 *
+		 * Applied when a value is saved and when it is printed. Tags added here are kept,
+		 * but the editor toolbar only creates the default set.
+		 *
+		 * @param array<string, array<string, bool>> $tags Allowed tags and attributes.
+		 */
+		$filtered = apply_filters( 'df_inhalt_richtext_tags', $tags );
+
+		return is_array( $filtered ) ? $filtered : $tags;
 	}
 
 	/**

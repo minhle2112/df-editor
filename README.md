@@ -60,6 +60,12 @@ php bin/tokens-css.php --framework                       # refresh framework/df-
 - Field IDs (`{page_key}.{instance_id}.{field}`) must never change once published: never rename or delete a field, list or option key of a live section.
 - Releases: push a tag `vX.Y.Z` matching the `Version:` header; the GitHub workflow lints, checks the version and attaches the plugin zip.
 
+## 1.1.1
+
+- Fix: DF Inhalt rich text dropped `<h2>` / `<h3>`. Its allowed tag list (`DF_Inhalt_Fields::richtext_tags()`) now matches the layout / fallback list, so headings in layout defaults and in saved values are kept on save and on output instead of turning into `<p>`.
+- DF Inhalt rich text toolbar: new **H2** (Heading) and **H3** (Subheading) buttons (`formatBlock`; a second click turns the block back into a paragraph; `aria-pressed` shows the current level).
+- New filter `df_inhalt_richtext_tags` (wp_kses format) to extend the rich text tags; used by DF Inhalt and the plain fallback output.
+
 ## 1.1.0
 
 - New view switcher (`includes/class-viewport.php`, `assets/js/viewport.js`, `assets/css/viewport.css`). The narrow view is an iframe of the same URL with the query flag `?df_view=tablet|mobile` on a stage over the page; the flag only has an effect for users who may use the switcher (no admin bar, no second toolbar inside, body class `df-view-frame`, `nocache_headers()`). The frame is loaded invisibly at full width and scrolled to the page position, then its width is animated; top page and frame talk via `postMessage` (scroll position, edit mode, saves, Esc). sessionStorage keys: `dfView` (view, rotation, width of the tab), `dfViewBack`, `dfViewFrameY`.

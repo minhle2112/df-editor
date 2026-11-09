@@ -287,7 +287,10 @@ final class DF_Inhalt_Plugin {
 				<div class="df-inhalt-popup__richtext-editor" data-df-richtext-editor hidden>
 					<div class="df-inhalt-popup__toolbar" role="toolbar" aria-label="<?php esc_attr_e( 'Formatting', 'df-editor' ); ?>">
 						<?php
+						// Icon: a dashicon name, or "text:<label>" for a short text label.
 						$tools = array(
+							'h2'                  => array( 'text:H2', __( 'Heading', 'df-editor' ) ),
+							'h3'                  => array( 'text:H3', __( 'Subheading', 'df-editor' ) ),
 							'bold'                => array( 'editor-bold', __( 'Bold', 'df-editor' ) ),
 							'italic'              => array( 'editor-italic', __( 'Italic', 'df-editor' ) ),
 							'link'                => array( 'admin-links', __( 'Link', 'df-editor' ) ),
@@ -298,7 +301,11 @@ final class DF_Inhalt_Plugin {
 						foreach ( $tools as $command => $tool ) :
 							?>
 							<button class="df-inhalt-popup__tool" type="button" data-df-command="<?php echo esc_attr( $command ); ?>" aria-label="<?php echo esc_attr( $tool[1] ); ?>" title="<?php echo esc_attr( $tool[1] ); ?>" aria-pressed="false">
-								<span class="dashicons dashicons-<?php echo esc_attr( $tool[0] ); ?>" aria-hidden="true"></span>
+								<?php if ( 0 === strpos( $tool[0], 'text:' ) ) : ?>
+									<span class="df-inhalt-popup__tool-text" aria-hidden="true"><?php echo esc_html( substr( $tool[0], 5 ) ); ?></span>
+								<?php else : ?>
+									<span class="dashicons dashicons-<?php echo esc_attr( $tool[0] ); ?>" aria-hidden="true"></span>
+								<?php endif; ?>
 							</button>
 						<?php endforeach; ?>
 					</div>

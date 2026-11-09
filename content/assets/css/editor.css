@@ -363,6 +363,11 @@ html.df-edit-active:not(.df-inhalt-media-open) body [data-df-managed] {
 	font-size: 20px;
 }
 
+.df-inhalt-popup__tool-text {
+	font: 700 13px/1 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+	letter-spacing: 0;
+}
+
 .df-inhalt-popup__richtext {
 	min-height: 96px;
 	max-height: 280px;
@@ -395,6 +400,31 @@ html.df-edit-active:not(.df-inhalt-media-open) body [data-df-managed] {
 	padding: 0;
 	color: inherit;
 	font: inherit;
+}
+
+.df-inhalt-popup__richtext h2,
+.df-inhalt-popup__richtext h3 {
+	margin: 0.8em 0 0.4em;
+	padding: 0;
+	color: inherit;
+	font-family: inherit;
+	font-weight: 700;
+	line-height: 1.3;
+	letter-spacing: 0;
+	text-transform: none;
+}
+
+.df-inhalt-popup__richtext h2 {
+	font-size: 1.3em;
+}
+
+.df-inhalt-popup__richtext h3 {
+	font-size: 1.12em;
+}
+
+.df-inhalt-popup__richtext > h2:first-child,
+.df-inhalt-popup__richtext > h3:first-child {
+	margin-top: 0;
 }
 
 .df-inhalt-popup__richtext ul,

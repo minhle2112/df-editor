@@ -230,6 +230,24 @@
 		return link && richtextInput.contains( link ) ? link : null;
 	};
 
+	// Toolbar commands that turn the current paragraph into a heading (and back).
+	const headingCommands = [ 'h2', 'h3' ];
+
+	/**
+	 * Tag name ("h2" / "h3") of the heading around the range start, or an empty string.
+	 */
+	const getHeadingAt = ( range ) => {
+		if ( ! range ) {
+			return '';
+		}
+
+		const node = range.startContainer;
+		const element = Node.ELEMENT_NODE === node.nodeType ? node : node.parentElement;
+		const heading = element ? element.closest( headingCommands.join( ',' ) ) : null;
+
+		return heading && richtextInput.contains( heading ) ? heading.tagName.toLowerCase() : '';
+	};
+
 	const focusEditor = () => {
 		richtextInput.focus();
 
@@ -238,16 +256,35 @@
 		}
 	};
 
+	/**
+	 * Make the current block a heading of the given level; a second click turns it back into a paragraph.
+	 */
+	const toggleHeading = ( tag ) => {
+		focusEditor();
+
+		const current = getHeadingAt( getEditorRange() || lastRange );
+
+		document.execCommand( 'formatBlock', false, current === tag ? '<p>' : '<' + tag + '>' );
+	};
+
 	const updateTools = () => {
 		if ( richtextEditor.hidden ) {
 			return;
 		}
 
+		const heading = getHeadingAt( lastRange );
+
 		tools.forEach( ( tool ) => {
 			const command = tool.dataset.dfCommand;
-			const pressed = 'link' === command
-				? Boolean( getLinkAt( lastRange ) )
-				: document.queryCommandState( command );
+			let pressed;
+
+			if ( 'link' === command ) {
+				pressed = Boolean( getLinkAt( lastRange ) );
+			} else if ( headingCommands.includes( command ) ) {
+				pressed = heading === command;
+			} else {
+				pressed = document.queryCommandState( command );
+			}
 
 			tool.setAttribute( 'aria-pressed', pressed ? 'true' : 'false' );
 		} );
@@ -333,7 +370,7 @@
 		container.querySelectorAll( 'div' ).forEach( ( element ) => replaceTag( element, 'p' ) );
 		container.querySelectorAll( 'b' ).forEach( ( element ) => replaceTag( element, 'strong' ) );
 		container.querySelectorAll( 'i' ).forEach( ( element ) => replaceTag( element, 'em' ) );
-		container.querySelectorAll( 'p' ).forEach( ( element ) => {
+		container.querySelectorAll( 'p, h2, h3' ).forEach( ( element ) => {
 			if ( ! element.textContent.trim() ) {
 				element.remove();
 			}
@@ -842,6 +879,12 @@
 
 			if ( 'link' === command ) {
 				toggleLinkRow();
+				return;
+			}
+
+			if ( headingCommands.includes( command ) ) {
+				toggleHeading( command );
+				updateTools();
 				return;
 			}
 

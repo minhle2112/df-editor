@@ -217,15 +217,16 @@ final class DF_Content {
 	}
 
 	/**
-	 * Tags allowed in rich text (same set as DF Inhalt plus h2/h3).
+	 * Tags allowed in rich text when DF Inhalt is off (same set as DF Inhalt, links may also
+	 * keep target / rel). Filter `df_inhalt_richtext_tags` applies here too.
 	 */
 	public static function richtext_tags(): array {
-		$a = array(
+		$a    = array(
 			'href'   => true,
 			'target' => true,
 			'rel'    => true,
 		);
-		return array(
+		$tags = array(
 			'p'      => array(),
 			'br'     => array(),
 			'strong' => array(),
@@ -239,5 +240,10 @@ final class DF_Content {
 			'h3'     => array(),
 			'a'      => $a,
 		);
+
+		/** This filter is documented in content/includes/class-df-inhalt-fields.php */
+		$filtered = apply_filters( 'df_inhalt_richtext_tags', $tags );
+
+		return is_array( $filtered ) ? $filtered : $tags;
 	}
 }

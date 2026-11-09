@@ -2,7 +2,7 @@
 /**
  * Plugin Name:       DF Editor
  * Description:       Page layouts from theme sections, CSS framework and front-end content editing (DF Inhalt) by Digitale Formate.
- * Version:           1.1.0
+ * Version:           1.1.1
  * Requires at least: 6.5
  * Requires PHP:      8.0
  * Author:            Digitale Formate
@@ -17,7 +17,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'DF_EDITOR_VERSION', '1.1.0' );
+define( 'DF_EDITOR_VERSION', '1.1.1' );
 define( 'DF_EDITOR_FILE', __FILE__ );
 define( 'DF_EDITOR_DIR', plugin_dir_path( __FILE__ ) );
 define( 'DF_EDITOR_URL', plugin_dir_url( __FILE__ ) );
